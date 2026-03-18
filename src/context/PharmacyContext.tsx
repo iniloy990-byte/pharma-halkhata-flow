@@ -98,10 +98,10 @@ export function PharmacyProvider({ children }: { children: ReactNode }) {
         return m;
       })
     );
-    // Update customer due if payment method is "Due"
-    if (sale.paymentMethod === "Due" && sale.customerId) {
+    // Update customer due if there's any due amount
+    if (sale.dueAmount > 0 && sale.customerId) {
       setCustomers((prev) =>
-        prev.map((c) => (c.id === sale.customerId ? { ...c, dueBalance: c.dueBalance + sale.total } : c))
+        prev.map((c) => (c.id === sale.customerId ? { ...c, dueBalance: c.dueBalance + sale.dueAmount } : c))
       );
     }
   }, []);

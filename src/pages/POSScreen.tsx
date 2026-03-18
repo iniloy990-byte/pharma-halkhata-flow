@@ -35,6 +35,7 @@ export default function POSScreen() {
   const [selectedPayment, setSelectedPayment] = useState("cash");
   const [selectedCustomer, setSelectedCustomer] = useState("");
   const [discount, setDiscount] = useState(0);
+  const [paidAmount, setPaidAmount] = useState<string>("");
   const [printInvoice, setPrintInvoice] = useState<Sale | null>(null);
 
   const filtered = useMemo(() => {
@@ -69,12 +70,30 @@ export default function POSScreen() {
   const vat = subtotal * (settings.vatRate / 100);
   const total = subtotal + vat - discount;
 
+  const paid = paidAmount === "" ? total : parseFloat(paidAmount) || 0;
+  const dueAmount = Math.max(0, total - paid);
+  const isPartialPayment = dueAmount > 0;
+  const isWalkIn = !selectedCustomer;
+
+  // Get selected customer's existing due
+  const selectedCust = customers.find((c) => c.id === selectedCustomer);
+  const existingDue = selectedCust?.dueBalance || 0;
+
   const completeSale = () => {
     if (cart.length === 0) return;
-    if (selectedPayment === "due" && !selectedCustomer) {
-      toast.error("Select a customer for Due payment");
+    if (isPartialPayment && isWalkIn) {
+      toast.error("Due payment is not available for Walk-in customers. Please select a customer.");
       return;
     }
+    if (paid <= 0) {
+      toast.error("Paid amount must be greater than 0");
+      return;
+    }
+    if (paid > total) {
+      toast.error("Paid amount cannot exceed total");
+      return;
+    }
+
     const cust = customers.find((c) => c.id === selectedCustomer);
     const saleData: Omit<Sale, "id" | "invoiceNo"> = {
       customerId: selectedCustomer || null,
@@ -91,21 +110,26 @@ export default function POSScreen() {
       vat,
       discount,
       total,
-      paymentMethod: selectedPayment === "cash" ? "Cash" : selectedPayment === "bkash" ? "bKash" : selectedPayment === "card" ? "Card" : "Due",
+      paidAmount: paid,
+      dueAmount,
+      paymentMethod: isPartialPayment
+        ? `Partial (${selectedPayment === "cash" ? "Cash" : selectedPayment === "bkash" ? "bKash" : selectedPayment === "card" ? "Card" : "Cash"})`
+        : selectedPayment === "cash" ? "Cash" : selectedPayment === "bkash" ? "bKash" : selectedPayment === "card" ? "Card" : "Due",
       date: new Date().toISOString(),
       salesperson: "Admin",
     };
     addSale(saleData);
-    // Build a temporary sale object for invoice display
+
     const invoiceSale: Sale = {
       ...saleData,
       id: "temp",
       invoiceNo: `INV-${(sales?.length || 0) + 1002}`,
     };
     setPrintInvoice(invoiceSale);
-    toast.success(`Sale completed — ৳${total.toFixed(2)}`);
+    toast.success(`Sale completed — ৳${total.toFixed(2)}${isPartialPayment ? ` (Due: ৳${dueAmount.toFixed(2)})` : ""}`);
     setCart([]);
     setDiscount(0);
+    setPaidAmount("");
     setSelectedCustomer("");
     setSearch("");
   };
@@ -214,9 +238,9 @@ export default function POSScreen() {
 
         {/* Checkout */}
         <div className="border-t border-border p-4 space-y-3 bg-background/50">
-          {/* Customer Select for Due */}
+          {/* Customer Select */}
           <div>
-            <label className="text-xs text-muted-foreground mb-1 block">Customer</label>
+            <label className="text-xs text-muted-foreground mb-1 block">Customer Account</label>
             <select value={selectedCustomer} onChange={(e) => setSelectedCustomer(e.target.value)}
               className="w-full h-9 rounded-inner border border-input bg-background px-3 text-sm">
               <option value="">Walk-in Customer</option>
@@ -224,6 +248,7 @@ export default function POSScreen() {
             </select>
           </div>
 
+          {/* Totals */}
           <div className="space-y-1.5 text-sm">
             <div className="flex justify-between text-muted-foreground"><span>Subtotal</span><span className="font-mono-data">৳{subtotal.toFixed(2)}</span></div>
             <div className="flex justify-between text-muted-foreground"><span>VAT ({settings.vatRate}%)</span><span className="font-mono-data">৳{vat.toFixed(2)}</span></div>
@@ -236,12 +261,12 @@ export default function POSScreen() {
             </div>
           </div>
 
-          <div className="grid grid-cols-4 gap-2">
+          {/* Payment Method */}
+          <div className="grid grid-cols-3 gap-2">
             {[
               { id: "cash", label: "Cash", icon: Banknote },
               { id: "bkash", label: "bKash", icon: Smartphone },
               { id: "card", label: "Card", icon: CreditCard },
-              { id: "due", label: "Due", icon: Clock },
             ].map((method) => (
               <Button key={method.id} variant={selectedPayment === method.id ? "default" : "pos-method"} size="sm"
                 onClick={() => setSelectedPayment(method.id)} className="flex flex-col items-center gap-1 h-auto py-2.5">
@@ -250,8 +275,46 @@ export default function POSScreen() {
             ))}
           </div>
 
-          <Button variant="pos" size="xl" className="w-full" disabled={cart.length === 0} onClick={completeSale}>
-            Complete Sale — ৳{total.toFixed(2)}
+          {/* Paid Amount - for partial payment */}
+          <div>
+            <label className="text-xs text-muted-foreground mb-1 block">Paid Amount</label>
+            <Input
+              type="number"
+              value={paidAmount}
+              onChange={(e) => setPaidAmount(e.target.value)}
+              placeholder={`Full: ৳${total.toFixed(2)}`}
+              className="h-9 font-mono-data text-sm"
+            />
+          </div>
+
+          {/* Due display */}
+          {isPartialPayment && cart.length > 0 && (
+            <div className={`rounded-inner p-3 space-y-1 ${isWalkIn ? "bg-destructive/10 border border-destructive/30" : "bg-accent-due/10 border border-accent-due/30"}`}>
+              {isWalkIn ? (
+                <p className="text-xs text-destructive font-medium">⚠ Due not available for Walk-in. Select a customer account.</p>
+              ) : (
+                <>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Current Due</span>
+                    <span className="font-mono-data font-bold text-accent-due">৳{dueAmount.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>Previous Due</span>
+                    <span className="font-mono-data">৳{existingDue.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm font-bold border-t border-accent-due/20 pt-1">
+                    <span className="text-muted-foreground">Total Due</span>
+                    <span className="font-mono-data text-accent-due">৳{(existingDue + dueAmount).toFixed(2)}</span>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
+          <Button variant="pos" size="xl" className="w-full" disabled={cart.length === 0 || (isPartialPayment && isWalkIn)} onClick={completeSale}>
+            {isPartialPayment && !isWalkIn
+              ? `Pay ৳${paid.toFixed(2)} + Due ৳${dueAmount.toFixed(2)}`
+              : `Complete Sale — ৳${total.toFixed(2)}`}
           </Button>
         </div>
       </div>
