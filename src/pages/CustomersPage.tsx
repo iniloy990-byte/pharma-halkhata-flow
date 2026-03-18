@@ -34,6 +34,13 @@ export default function CustomersPage() {
         payments={custPayments}
         onBack={() => setSelectedCustomer(null)}
         onPayment={() => setShowPaymentForm(true)}
+        onDelete={() => {
+          if (window.confirm(`Are you sure you want to delete "${cust.name}"?`)) {
+            deleteCustomer(cust.id);
+            setSelectedCustomer(null);
+            toast.success("Customer deleted");
+          }
+        }}
         showPaymentForm={showPaymentForm}
         onSubmitPayment={(amount, method, note) => {
           addPayment({ customerId: cust.id, amount, method, note, date: new Date().toISOString() });
