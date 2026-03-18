@@ -18,44 +18,11 @@ export const defaultMedicines: Medicine[] = [
   { id: "m15", name: "Cef-3 200", generic: "Cefixime 200mg", form: "Capsule", manufacturer: "Square", mrp: 20, tp: 15, stock: 75, batch: "CF-2024-056", expiry: "2025-07", minStock: 15 },
 ];
 
-export const defaultCustomers: Customer[] = [
-  { id: "c1", name: "Rahim Uddin", phone: "01712345678", address: "Mirpur, Dhaka", dueBalance: 2450 },
-  { id: "c2", name: "Fatema Begum", phone: "01898765432", address: "Dhanmondi, Dhaka", dueBalance: 680 },
-  { id: "c3", name: "Kamal Hossain", phone: "01556789012", address: "Uttara, Dhaka", dueBalance: 0 },
-  { id: "c4", name: "Nasreen Akhter", phone: "01634567890", address: "Gulshan, Dhaka", dueBalance: 1200 },
-  { id: "c5", name: "Abdul Mannan", phone: "01923456789", address: "Mohammadpur, Dhaka", dueBalance: 5600 },
-  { id: "c6", name: "Salma Khatun", phone: "01445678901", address: "Banani, Dhaka", dueBalance: 340 },
-];
+export const defaultCustomers: Customer[] = [];
 
 const now = new Date();
 const today = now.toISOString().split("T")[0];
-const yesterday = new Date(now.getTime() - 86400000).toISOString().split("T")[0];
 
-export const defaultSales: Sale[] = [
-  { id: "s1", invoiceNo: "INV-1024", customerId: null, customerName: "Walk-in", items: [
-    { medicineId: "m1", medicineName: "Napa Extra", generic: "Paracetamol", qty: 10, unitPrice: 2.5, total: 25 },
-    { medicineId: "m2", medicineName: "Seclo 20", generic: "Omeprazole", qty: 5, unitPrice: 6, total: 30 },
-  ], subtotal: 55, vat: 2.75, discount: 0, total: 57.75, paymentMethod: "Cash", date: today + "T10:30:00", salesperson: "Admin" },
-  { id: "s2", invoiceNo: "INV-1023", customerId: "c1", customerName: "Rahim Uddin", items: [
-    { medicineId: "m4", medicineName: "Zimax 500", generic: "Azithromycin", qty: 6, unitPrice: 30, total: 180 },
-    { medicineId: "m7", medicineName: "Amoxil 500", generic: "Amoxicillin", qty: 14, unitPrice: 12, total: 168 },
-  ], subtotal: 348, vat: 17.4, discount: 0, total: 365.4, paymentMethod: "bKash", date: today + "T09:15:00", salesperson: "Admin" },
-  { id: "s3", invoiceNo: "INV-1022", customerId: null, customerName: "Walk-in", items: [
-    { medicineId: "m10", medicineName: "Insulin Mixtard", generic: "Insulin", qty: 1, unitPrice: 440, total: 440 },
-  ], subtotal: 440, vat: 22, discount: 0, total: 462, paymentMethod: "Cash", date: today + "T08:45:00", salesperson: "Admin" },
-  { id: "s4", invoiceNo: "INV-1021", customerId: "c2", customerName: "Fatema Begum", items: [
-    { medicineId: "m9", medicineName: "Monas 10", generic: "Montelukast", qty: 30, unitPrice: 14, total: 420 },
-  ], subtotal: 420, vat: 21, discount: 0, total: 441, paymentMethod: "Due", date: today + "T08:00:00", salesperson: "Admin" },
-  { id: "s5", invoiceNo: "INV-1020", customerId: null, customerName: "Walk-in", items: [
-    { medicineId: "m11", medicineName: "Tofen 400", generic: "Ibuprofen", qty: 20, unitPrice: 4, total: 80 },
-    { medicineId: "m12", medicineName: "Maxpro 20", generic: "Esomeprazole", qty: 10, unitPrice: 7, total: 70 },
-  ], subtotal: 150, vat: 7.5, discount: 0, total: 157.5, paymentMethod: "Nagad", date: yesterday + "T16:30:00", salesperson: "Admin" },
-  { id: "s6", invoiceNo: "INV-1019", customerId: "c5", customerName: "Abdul Mannan", items: [
-    { medicineId: "m14", medicineName: "Neurodin 75", generic: "Pregabalin", qty: 60, unitPrice: 12, total: 720 },
-  ], subtotal: 720, vat: 36, discount: 20, total: 736, paymentMethod: "Due", date: yesterday + "T14:00:00", salesperson: "Admin" },
-];
+export const defaultSales: Sale[] = [];
 
-export const defaultPayments: Payment[] = [
-  { id: "p1", customerId: "c1", amount: 500, method: "Cash", date: today + "T11:00:00", note: "Partial payment" },
-  { id: "p2", customerId: "c2", amount: 200, method: "bKash", date: yesterday + "T15:00:00", note: "" },
-];
+export const defaultPayments: Payment[] = [];

@@ -1,10 +1,11 @@
 import { useState, useMemo } from "react";
 import { usePharmacy } from "@/context/PharmacyContext";
-import { Medicine } from "@/types/pharmacy";
+import { Medicine, Sale } from "@/types/pharmacy";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Plus, Minus, X, Banknote, Smartphone, CreditCard, Clock } from "lucide-react";
 import { toast } from "sonner";
+import InvoicePrint from "@/components/InvoicePrint";
 
 interface CartItem {
   medicine: Medicine;
@@ -28,12 +29,13 @@ function isExpired(expiry: string) {
 }
 
 export default function POSScreen() {
-  const { medicines, settings, customers, addSale } = usePharmacy();
+  const { medicines, settings, customers, sales, addSale } = usePharmacy();
   const [search, setSearch] = useState("");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [selectedPayment, setSelectedPayment] = useState("cash");
   const [selectedCustomer, setSelectedCustomer] = useState("");
   const [discount, setDiscount] = useState(0);
+  const [printInvoice, setPrintInvoice] = useState<Sale | null>(null);
 
   const filtered = useMemo(() => {
     if (!search.trim()) return medicines.filter((m) => m.stock > 0 && !isExpired(m.expiry));
@@ -74,7 +76,7 @@ export default function POSScreen() {
       return;
     }
     const cust = customers.find((c) => c.id === selectedCustomer);
-    addSale({
+    const saleData: Omit<Sale, "id" | "invoiceNo"> = {
       customerId: selectedCustomer || null,
       customerName: cust?.name || "Walk-in",
       items: cart.map((c) => ({
@@ -92,7 +94,15 @@ export default function POSScreen() {
       paymentMethod: selectedPayment === "cash" ? "Cash" : selectedPayment === "bkash" ? "bKash" : selectedPayment === "card" ? "Card" : "Due",
       date: new Date().toISOString(),
       salesperson: "Admin",
-    });
+    };
+    addSale(saleData);
+    // Build a temporary sale object for invoice display
+    const invoiceSale: Sale = {
+      ...saleData,
+      id: "temp",
+      invoiceNo: `INV-${(sales?.length || 0) + 1002}`,
+    };
+    setPrintInvoice(invoiceSale);
     toast.success(`Sale completed — ৳${total.toFixed(2)}`);
     setCart([]);
     setDiscount(0);
@@ -245,6 +255,11 @@ export default function POSScreen() {
           </Button>
         </div>
       </div>
+
+      {/* Invoice Print Overlay */}
+      {printInvoice && (
+        <InvoicePrint sale={printInvoice} settings={settings} onClose={() => setPrintInvoice(null)} />
+      )}
     </div>
   );
 }
