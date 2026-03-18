@@ -255,6 +255,11 @@ export default function POSScreen() {
           </Button>
         </div>
       </div>
+
+      {/* Invoice Print Overlay */}
+      {printInvoice && (
+        <InvoicePrint sale={printInvoice} settings={settings} onClose={() => setPrintInvoice(null)} />
+      )}
     </div>
   );
 }

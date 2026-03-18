@@ -142,5 +142,30 @@
   .medicine-card:hover {
     @apply shadow-md;
     transform: translateY(-2px);
+}
+
+/* Print Styles */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .fixed {
+    position: absolute !important;
+    inset: 0 !important;
+  }
+  .fixed > div:last-child,
+  .fixed > div:last-child * {
+    visibility: visible;
+  }
+  .fixed > div:last-child {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+  .print\\:hidden {
+    display: none !important;
   }
 }
