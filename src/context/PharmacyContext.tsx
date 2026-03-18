@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
+
 import { Medicine, Customer, Sale, Payment, PharmacySettings } from "@/types/pharmacy";
 import { defaultMedicines, defaultCustomers, defaultSales, defaultPayments } from "@/data/defaults";
 
