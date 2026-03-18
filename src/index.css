@@ -1,96 +1,71 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Hind+Siliguri:wght@400;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
-
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Clinical Grid Design System — PharmaStream BD */
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 222 47% 11%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 222 47% 11%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 171 77% 34%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222 47% 11%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 346 84% 61%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 171 77% 34%;
 
     --radius: 0.5rem;
+    --radius-outer: 8px;
+    --radius-inner: 4px;
 
-    --sidebar-background: 0 0% 98%;
+    /* Functional Colors */
+    --accent-due: 24 95% 53%;
+    --accent-due-foreground: 0 0% 100%;
+    --accent-expiry: 346 84% 61%;
+    --accent-expiry-foreground: 0 0% 100%;
+    --accent-success: 142 76% 36%;
+    --accent-success-foreground: 0 0% 100%;
 
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    /* Sidebar */
+    --sidebar-background: 222 47% 11%;
+    --sidebar-foreground: 210 40% 80%;
+    --sidebar-primary: 171 77% 34%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-accent: 222 47% 16%;
+    --sidebar-accent-foreground: 210 40% 96%;
+    --sidebar-border: 222 47% 16%;
+    --sidebar-ring: 171 77% 34%;
+    --sidebar-muted: 215 16% 47%;
+
+    /* Motion */
+    --ease-swift: cubic-bezier(0.16, 1, 0.3, 1);
+    --duration-fast: 150ms;
+
+    /* Typography */
+    --font-display: 'Inter', 'Hind Siliguri', sans-serif;
+    --font-body: 'Inter', 'Hind Siliguri', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
   }
 }
 
@@ -100,6 +75,72 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+}
+
+@layer utilities {
+  .font-mono-data {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 0.875rem;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .pos-grid {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    height: 100svh;
+  }
+
+  .pos-grid-with-nav {
+    display: grid;
+    grid-template-columns: 240px 1fr 360px;
+    height: 100svh;
+  }
+
+  .status-badge {
+    @apply text-[10px] uppercase tracking-wider font-bold px-1.5 py-0.5;
+    border-radius: var(--radius-inner);
+  }
+
+  .status-expired {
+    background-color: hsl(346 84% 61% / 0.1);
+    color: hsl(346 84% 61%);
+    border: 1px solid hsl(346 84% 61% / 0.2);
+  }
+
+  .status-low-stock {
+    background-color: hsl(24 95% 53% / 0.1);
+    color: hsl(24 95% 53%);
+    border: 1px solid hsl(24 95% 53% / 0.2);
+  }
+
+  .status-in-stock {
+    background-color: hsl(142 76% 36% / 0.1);
+    color: hsl(142 76% 36%);
+    border: 1px solid hsl(142 76% 36% / 0.2);
+  }
+
+  .medicine-card {
+    @apply bg-card border border-border p-3 flex flex-col gap-1;
+    border-radius: var(--radius-outer);
+    transition: transform var(--duration-fast) var(--ease-swift), box-shadow var(--duration-fast) var(--ease-swift);
+  }
+
+  .medicine-card:hover {
+    @apply shadow-md;
+    transform: translateY(-2px);
   }
 }
