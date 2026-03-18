@@ -172,7 +172,7 @@ export default function ReportsPage() {
             <div className="space-y-2">
               {filteredSales.flatMap((s) => s.items).reduce((acc, item) => {
                 const existing = acc.find((a) => a.medicineId === item.medicineId);
-                if (existing) { existing.qty += item.qty; existing.revenue += item.total; }
+                if (existing) { existing.qty += item.qty; existing.total += item.total; }
                 else acc.push({ ...item });
                 return acc;
               }, [] as typeof filteredSales[0]["items"]).map((item) => {
