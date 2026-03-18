@@ -152,6 +152,9 @@ function CustomerDetail({ customer, sales, payments, onBack, onPayment, showPaym
         <Button size="sm" variant={customer.dueBalance > 0 ? "due" : "outline"} onClick={onPayment} disabled={customer.dueBalance <= 0}>
           <Banknote className="w-4 h-4 mr-1.5" /> Receive Payment
         </Button>
+        <Button size="sm" variant="destructive" onClick={onDelete}>
+          <X className="w-4 h-4 mr-1.5" /> Delete Customer
+        </Button>
       </div>
 
       {showPaymentForm && (
