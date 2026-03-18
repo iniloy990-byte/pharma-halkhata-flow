@@ -142,6 +142,7 @@
   .medicine-card:hover {
     @apply shadow-md;
     transform: translateY(-2px);
+  }
 }
 
 /* Print Styles */
