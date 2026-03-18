@@ -11,33 +11,29 @@ export default function SettingsPage() {
 
   const set = (key: string, val: string | number) => setForm((p) => ({ ...p, [key]: val }));
 
-  const handleSave = () => {
-    updateSettings(form);
-    toast.success("Settings saved successfully");
-  };
+  const handleSave = () => { updateSettings(form); toast.success("Settings saved successfully"); };
 
   const handleReset = () => {
     if (confirm("This will clear ALL data and reset to defaults. Are you sure?")) {
-      localStorage.clear();
-      window.location.reload();
+      localStorage.clear(); window.location.reload();
     }
   };
 
   return (
-    <div className="p-6 space-y-6 max-w-[800px]">
+    <div className="p-4 md:p-6 space-y-6 max-w-[800px]">
       <div>
-        <h2 className="text-2xl font-bold text-foreground tracking-tight">Settings</h2>
-        <p className="text-sm text-muted-foreground">Configure your pharmacy details</p>
+        <h2 className="text-xl md:text-2xl font-bold text-foreground tracking-tight">Settings</h2>
+        <p className="text-xs md:text-sm text-muted-foreground">Configure your pharmacy details</p>
       </div>
 
-      <div className="bg-card border border-border rounded-outer p-5 space-y-4">
+      <div className="bg-card border border-border rounded-outer p-4 md:p-5 space-y-4">
         <h3 className="font-semibold text-foreground">Pharmacy Information</h3>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="col-span-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="sm:col-span-2">
             <label className="text-xs text-muted-foreground mb-1 block">Pharmacy Name</label>
             <Input value={form.name} onChange={(e) => set("name", e.target.value)} />
           </div>
-          <div className="col-span-2">
+          <div className="sm:col-span-2">
             <label className="text-xs text-muted-foreground mb-1 block">Address</label>
             <Input value={form.address} onChange={(e) => set("address", e.target.value)} />
           </div>
@@ -55,25 +51,21 @@ export default function SettingsPage() {
           </div>
           <div>
             <label className="text-xs text-muted-foreground mb-1 block">Receipt Width</label>
-            <select
-              value={form.receiptWidth}
-              onChange={(e) => set("receiptWidth", e.target.value)}
-              className="w-full h-10 rounded-outer border border-input bg-background px-3 text-sm"
-            >
+            <select value={form.receiptWidth} onChange={(e) => set("receiptWidth", e.target.value)}
+              className="w-full h-10 rounded-outer border border-input bg-background px-3 text-sm">
               <option value="80mm">80mm (Standard)</option>
               <option value="58mm">58mm (Compact)</option>
             </select>
           </div>
         </div>
-
         <div className="flex justify-end">
           <Button onClick={handleSave}><Save className="w-4 h-4 mr-1.5" /> Save Settings</Button>
         </div>
       </div>
 
-      <div className="bg-card border border-destructive/30 rounded-outer p-5 space-y-3">
+      <div className="bg-card border border-destructive/30 rounded-outer p-4 md:p-5 space-y-3">
         <h3 className="font-semibold text-destructive">Danger Zone</h3>
-        <p className="text-sm text-muted-foreground">Reset all data to defaults. This action cannot be undone.</p>
+        <p className="text-xs md:text-sm text-muted-foreground">Reset all data to defaults. This action cannot be undone.</p>
         <Button variant="destructive" size="sm" onClick={handleReset}>Reset All Data</Button>
       </div>
     </div>

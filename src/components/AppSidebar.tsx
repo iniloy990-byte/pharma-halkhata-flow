@@ -1,13 +1,6 @@
 import { NavLink, useLocation } from "react-router-dom";
 import {
-  LayoutDashboard,
-  ShoppingCart,
-  Package,
-  AlertTriangle,
-  Users,
-  FileText,
-  Settings,
-  Pill,
+  LayoutDashboard, ShoppingCart, Package, AlertTriangle, Users, FileText, Settings, Pill, X,
 } from "lucide-react";
 
 const navItems = [
@@ -19,23 +12,32 @@ const navItems = [
   { to: "/reports", icon: FileText, label: "Reports" },
 ];
 
-export default function AppSidebar() {
+interface AppSidebarProps {
+  onClose?: () => void;
+}
+
+export default function AppSidebar({ onClose }: AppSidebarProps) {
   const location = useLocation();
 
   return (
     <aside className="flex flex-col h-screen bg-sidebar text-sidebar-foreground w-[240px] border-r border-sidebar-border">
-      {/* Logo */}
-      <div className="flex items-center gap-2.5 px-5 h-16 border-b border-sidebar-border">
-        <div className="w-8 h-8 rounded-outer bg-sidebar-primary flex items-center justify-center">
-          <Pill className="w-4 h-4 text-sidebar-primary-foreground" />
+      <div className="flex items-center justify-between px-5 h-16 border-b border-sidebar-border">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-outer bg-sidebar-primary flex items-center justify-center">
+            <Pill className="w-4 h-4 text-sidebar-primary-foreground" />
+          </div>
+          <div>
+            <h1 className="text-sm font-bold text-sidebar-accent-foreground tracking-tight">PharmaStream</h1>
+            <p className="text-[10px] text-sidebar-muted uppercase tracking-widest">BD</p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-sm font-bold text-sidebar-accent-foreground tracking-tight">PharmaStream</h1>
-          <p className="text-[10px] text-sidebar-muted uppercase tracking-widest">BD</p>
-        </div>
+        {onClose && (
+          <button onClick={onClose} className="lg:hidden p-1 rounded-inner hover:bg-sidebar-accent">
+            <X className="w-4 h-4 text-sidebar-foreground" />
+          </button>
+        )}
       </div>
 
-      {/* Navigation */}
       <nav className="flex-1 py-4 px-3 space-y-1">
         {navItems.map((item) => {
           const isActive = location.pathname === item.to;
@@ -43,6 +45,7 @@ export default function AppSidebar() {
             <NavLink
               key={item.to}
               to={item.to}
+              onClick={onClose}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-outer text-sm font-medium transition-all ${
                 isActive
                   ? "bg-sidebar-primary text-sidebar-primary-foreground"
@@ -56,10 +59,10 @@ export default function AppSidebar() {
         })}
       </nav>
 
-      {/* Footer */}
       <div className="px-3 py-4 border-t border-sidebar-border">
         <NavLink
           to="/settings"
+          onClick={onClose}
           className="flex items-center gap-3 px-3 py-2.5 rounded-outer text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all"
         >
           <Settings className="w-4 h-4" />

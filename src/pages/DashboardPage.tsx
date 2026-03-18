@@ -55,27 +55,27 @@ export default function DashboardPage() {
   }, [sales]);
 
   return (
-    <div className="p-6 space-y-6 max-w-[1400px]">
-      <div className="flex items-center justify-between">
+    <div className="p-4 md:p-6 space-y-4 md:space-y-6 max-w-[1400px]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div>
-          <h2 className="text-2xl font-bold text-foreground tracking-tight">Dashboard</h2>
-          <p className="text-sm text-muted-foreground">Real-time pharmacy overview</p>
+          <h2 className="text-xl md:text-2xl font-bold text-foreground tracking-tight">Dashboard</h2>
+          <p className="text-xs md:text-sm text-muted-foreground">Real-time pharmacy overview</p>
         </div>
         <p className="text-xs text-muted-foreground font-mono-data">
           {new Date().toLocaleDateString("en-BD", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {metrics.map((m) => (
-          <div key={m.label} className="bg-card border border-border rounded-outer p-4 space-y-2">
+          <div key={m.label} className="bg-card border border-border rounded-outer p-3 md:p-4 space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground font-medium">{m.label}</span>
-              <m.icon className="w-4 h-4 text-muted-foreground" />
+              <span className="text-[10px] md:text-xs text-muted-foreground font-medium">{m.label}</span>
+              <m.icon className="w-3.5 h-3.5 md:w-4 md:h-4 text-muted-foreground" />
             </div>
-            <div className="flex items-end justify-between">
-              <p className="text-2xl font-bold text-foreground font-mono-data tracking-tight">{m.value}</p>
-              <span className={`flex items-center gap-0.5 text-xs font-medium ${m.up ? "text-accent-success" : "text-accent-expiry"}`}>
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-1">
+              <p className="text-lg md:text-2xl font-bold text-foreground font-mono-data tracking-tight">{m.value}</p>
+              <span className={`flex items-center gap-0.5 text-[10px] md:text-xs font-medium ${m.up ? "text-accent-success" : "text-accent-expiry"}`}>
                 {m.up ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
                 {m.change}
               </span>
@@ -84,18 +84,18 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {alerts.map((a) => (
-          <div key={a.type} className="bg-card border border-border rounded-outer p-4 flex items-center justify-between">
+          <div key={a.type} className="bg-card border border-border rounded-outer p-3 md:p-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-inner flex items-center justify-center bg-background">
-                {a.type === "expiry" ? <AlertTriangle className="w-5 h-5 text-accent-expiry" /> :
-                 a.type === "low" ? <Package className="w-5 h-5 text-accent-due" /> :
-                 <Users className="w-5 h-5 text-accent-due" />}
+              <div className="w-8 h-8 md:w-10 md:h-10 rounded-inner flex items-center justify-center bg-background">
+                {a.type === "expiry" ? <AlertTriangle className="w-4 h-4 md:w-5 md:h-5 text-accent-expiry" /> :
+                 a.type === "low" ? <Package className="w-4 h-4 md:w-5 md:h-5 text-accent-due" /> :
+                 <Users className="w-4 h-4 md:w-5 md:h-5 text-accent-due" />}
               </div>
               <div>
-                <p className="text-sm font-medium text-foreground">{a.label}</p>
-                <p className="text-xs text-muted-foreground">Requires attention</p>
+                <p className="text-xs md:text-sm font-medium text-foreground">{a.label}</p>
+                <p className="text-[10px] md:text-xs text-muted-foreground">Requires attention</p>
               </div>
             </div>
             <span className={`status-badge ${a.type === "expiry" ? "status-expired" : "status-low-stock"}`}>{a.count}</span>
@@ -111,16 +111,16 @@ export default function DashboardPage() {
           </div>
           <div className="divide-y divide-border">
             {recentSales.map((s) => (
-              <div key={s.id} className="px-4 py-3 flex items-center justify-between hover:bg-accent/50 transition-colors">
-                <div className="flex items-center gap-3">
-                  <span className="font-mono-data text-xs text-muted-foreground w-20">{s.invoiceNo}</span>
-                  <div>
-                    <p className="text-sm font-medium text-foreground">{s.customerName}</p>
-                    <p className="text-xs text-muted-foreground">{s.items.length} items &middot; {new Date(s.date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</p>
+              <div key={s.id} className="px-3 md:px-4 py-3 flex items-center justify-between hover:bg-accent/50 transition-colors">
+                <div className="flex items-center gap-2 md:gap-3 min-w-0">
+                  <span className="font-mono-data text-[10px] md:text-xs text-muted-foreground w-16 md:w-20 shrink-0">{s.invoiceNo}</span>
+                  <div className="min-w-0">
+                    <p className="text-xs md:text-sm font-medium text-foreground truncate">{s.customerName}</p>
+                    <p className="text-[10px] md:text-xs text-muted-foreground">{s.items.length} items</p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="font-mono-data font-semibold text-sm text-foreground">৳{s.total.toFixed(2)}</p>
+                <div className="text-right shrink-0">
+                  <p className="font-mono-data font-semibold text-xs md:text-sm text-foreground">৳{s.total.toFixed(2)}</p>
                   <p className={`text-[10px] font-medium ${s.paymentMethod === "Due" ? "text-accent-due" : "text-muted-foreground"}`}>{s.paymentMethod}</p>
                 </div>
               </div>
@@ -135,13 +135,13 @@ export default function DashboardPage() {
           </div>
           <div className="divide-y divide-border">
             {topSelling.map((item, i) => (
-              <div key={item.name} className="px-4 py-3 flex items-center gap-3">
-                <span className="w-6 h-6 rounded-inner bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">{i + 1}</span>
+              <div key={item.name} className="px-3 md:px-4 py-3 flex items-center gap-3">
+                <span className="w-6 h-6 rounded-inner bg-primary/10 text-primary flex items-center justify-center text-xs font-bold shrink-0">{i + 1}</span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate">{item.name}</p>
-                  <p className="text-xs text-muted-foreground">{item.generic}</p>
+                  <p className="text-xs md:text-sm font-medium text-foreground truncate">{item.name}</p>
+                  <p className="text-[10px] md:text-xs text-muted-foreground">{item.generic}</p>
                 </div>
-                <div className="text-right">
+                <div className="text-right shrink-0">
                   <p className="font-mono-data text-xs font-semibold text-foreground">{item.sold} units</p>
                   <p className="font-mono-data text-[10px] text-muted-foreground">৳{item.revenue.toFixed(2)}</p>
                 </div>

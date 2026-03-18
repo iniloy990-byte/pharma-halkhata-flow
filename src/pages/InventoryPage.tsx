@@ -36,6 +36,25 @@ export default function InventoryPage() {
     toast.success("Medicine list exported successfully");
   };
 
+  const parseCSVLine = (line: string): string[] => {
+    const result: string[] = [];
+    let current = "";
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+      if (char === '"') {
+        inQuotes = !inQuotes;
+      } else if (char === ',' && !inQuotes) {
+        result.push(current.trim());
+        current = "";
+      } else {
+        current += char;
+      }
+    }
+    result.push(current.trim());
+    return result;
+  };
+
   const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -51,20 +70,19 @@ export default function InventoryPage() {
         }
         const meds: Omit<Medicine, "id">[] = [];
         for (let i = 1; i < lines.length; i++) {
-          const parts = lines[i].match(/(".*?"|[^,]+)/g);
-          if (!parts || parts.length < 9) continue;
-          const clean = (s: string) => s.replace(/^"|"$/g, "").trim();
+          const parts = parseCSVLine(lines[i]);
+          if (parts.length < 9) continue;
           meds.push({
-            name: clean(parts[0]),
-            generic: clean(parts[1]),
-            form: clean(parts[2]) || "Tablet",
-            manufacturer: clean(parts[3]),
-            mrp: parseFloat(clean(parts[4])) || 0,
-            tp: parseFloat(clean(parts[5])) || 0,
-            stock: parseInt(clean(parts[6])) || 0,
-            batch: clean(parts[7]),
-            expiry: clean(parts[8]),
-            minStock: parseInt(clean(parts[9])) || 10,
+            name: parts[0] || "",
+            generic: parts[1] || "",
+            form: parts[2] || "Tablet",
+            manufacturer: parts[3] || "",
+            mrp: parseFloat(parts[4]) || 0,
+            tp: parseFloat(parts[5]) || 0,
+            stock: parseInt(parts[6]) || 0,
+            batch: parts[7] || "",
+            expiry: parts[8] || "",
+            minStock: parseInt(parts[9]) || 10,
           });
         }
         if (meds.length === 0) {
@@ -87,22 +105,22 @@ export default function InventoryPage() {
   };
 
   return (
-    <div className="p-6 space-y-4 max-w-[1400px]">
-      <div className="flex items-center justify-between">
+    <div className="p-4 md:p-6 space-y-4 max-w-[1400px]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-bold text-foreground tracking-tight">Inventory Management</h2>
-          <p className="text-sm text-muted-foreground">{medicines.length} SKUs &middot; {medicines.filter(m => m.stock < m.minStock).length} low stock</p>
+          <h2 className="text-xl md:text-2xl font-bold text-foreground tracking-tight">Inventory Management</h2>
+          <p className="text-xs md:text-sm text-muted-foreground">{medicines.length} SKUs &middot; {medicines.filter(m => m.stock < m.minStock).length} low stock</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={handleImport} />
           <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()}>
-            <Upload className="w-4 h-4 mr-1.5" /> Import CSV
+            <Upload className="w-4 h-4 mr-1.5" /> Import
           </Button>
           <Button variant="outline" size="sm" onClick={handleExport}>
-            <Download className="w-4 h-4 mr-1.5" /> Export CSV
+            <Download className="w-4 h-4 mr-1.5" /> Export
           </Button>
           <Button size="sm" onClick={() => { setEditingMed(null); setShowForm(true); }}>
-            <Plus className="w-4 h-4 mr-1.5" /> Add Medicine
+            <Plus className="w-4 h-4 mr-1.5" /> Add
           </Button>
         </div>
       </div>
@@ -130,7 +148,56 @@ export default function InventoryPage() {
         />
       )}
 
-      <div className="bg-card border border-border rounded-outer overflow-hidden">
+      {/* Mobile card view */}
+      <div className="block md:hidden space-y-3">
+        {filtered.map((m) => {
+          const isLow = m.stock > 0 && m.stock < m.minStock;
+          const isOut = m.stock === 0;
+          const expDate = new Date(m.expiry + "-01");
+          const isExpired = expDate < new Date();
+          const isExpSoon = !isExpired && (expDate.getTime() - Date.now()) / 86400000 < 90;
+          return (
+            <div key={m.id} className="bg-card border border-border rounded-outer p-3 space-y-2">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="font-semibold text-sm text-foreground">{m.name}</p>
+                  <p className="text-xs text-muted-foreground">{m.generic}</p>
+                </div>
+                <div className="flex gap-1 shrink-0">
+                  {isExpired && <span className="status-badge status-expired">Expired</span>}
+                  {isExpSoon && !isExpired && <span className="status-badge status-expired">Exp Soon</span>}
+                  {isOut && <span className="status-badge status-expired">Out</span>}
+                  {isLow && !isOut && <span className="status-badge status-low-stock">Low</span>}
+                  {!isExpired && !isExpSoon && !isOut && !isLow && <span className="status-badge status-in-stock">OK</span>}
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-2 text-xs text-muted-foreground">
+                <span>{m.form}</span>
+                <span>{m.manufacturer}</span>
+                <span className="text-right font-mono-data">Stock: {m.stock}</span>
+              </div>
+              <div className="flex items-center justify-between pt-2 border-t border-border">
+                <div className="flex gap-3 text-xs font-mono-data text-muted-foreground">
+                  <span>MRP: ৳{m.mrp.toFixed(2)}</span>
+                  <span>Batch: {m.batch}</span>
+                  <span>Exp: {m.expiry}</span>
+                </div>
+                <div className="flex gap-1">
+                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditingMed(m); setShowForm(true); }}>
+                    <Pencil className="w-3 h-3" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDelete(m.id)}>
+                    <Trash2 className="w-3 h-3" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Desktop table view */}
+      <div className="hidden md:block bg-card border border-border rounded-outer overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -197,6 +264,14 @@ export default function InventoryPage() {
           </div>
         )}
       </div>
+
+      {/* Mobile empty state */}
+      {filtered.length === 0 && (
+        <div className="flex flex-col items-center py-16 text-muted-foreground md:hidden">
+          <Package className="w-8 h-8 mb-2 opacity-40" />
+          <p className="text-sm">No medicines found</p>
+        </div>
+      )}
     </div>
   );
 }
@@ -237,9 +312,9 @@ function MedicineForm({ medicine, onSave, onCancel }: {
         <h3 className="font-semibold text-foreground">{medicine ? "Edit Medicine" : "Add New Medicine"}</h3>
         <Button type="button" variant="ghost" size="icon" onClick={onCancel}><X className="w-4 h-4" /></Button>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div className="col-span-2"><label className="text-xs text-muted-foreground mb-1 block">Brand Name *</label><Input value={form.name} onChange={(e) => set("name", e.target.value)} required /></div>
-        <div className="col-span-2"><label className="text-xs text-muted-foreground mb-1 block">Generic Name *</label><Input value={form.generic} onChange={(e) => set("generic", e.target.value)} required /></div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="sm:col-span-2"><label className="text-xs text-muted-foreground mb-1 block">Brand Name *</label><Input value={form.name} onChange={(e) => set("name", e.target.value)} required /></div>
+        <div className="sm:col-span-2"><label className="text-xs text-muted-foreground mb-1 block">Generic Name *</label><Input value={form.generic} onChange={(e) => set("generic", e.target.value)} required /></div>
         <div><label className="text-xs text-muted-foreground mb-1 block">Form</label>
           <select value={form.form} onChange={(e) => set("form", e.target.value)} className="w-full h-10 rounded-outer border border-input bg-background px-3 text-sm">
             <option>Tablet</option><option>Capsule</option><option>Syrup</option><option>Injection</option><option>Cream</option><option>Drops</option><option>Inhaler</option><option>Suppository</option>
