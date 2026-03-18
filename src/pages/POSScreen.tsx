@@ -76,7 +76,7 @@ export default function POSScreen() {
       return;
     }
     const cust = customers.find((c) => c.id === selectedCustomer);
-    addSale({
+    const saleData: Omit<Sale, "id" | "invoiceNo"> = {
       customerId: selectedCustomer || null,
       customerName: cust?.name || "Walk-in",
       items: cart.map((c) => ({
@@ -94,7 +94,15 @@ export default function POSScreen() {
       paymentMethod: selectedPayment === "cash" ? "Cash" : selectedPayment === "bkash" ? "bKash" : selectedPayment === "card" ? "Card" : "Due",
       date: new Date().toISOString(),
       salesperson: "Admin",
-    });
+    };
+    addSale(saleData);
+    // Build a temporary sale object for invoice display
+    const invoiceSale: Sale = {
+      ...saleData,
+      id: "temp",
+      invoiceNo: `INV-${(sales?.length || 0) + 1002}`,
+    };
+    setPrintInvoice(invoiceSale);
     toast.success(`Sale completed — ৳${total.toFixed(2)}`);
     setCart([]);
     setDiscount(0);
