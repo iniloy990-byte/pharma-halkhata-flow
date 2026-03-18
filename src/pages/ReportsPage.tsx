@@ -26,10 +26,8 @@ export default function ReportsPage() {
   const totalVat = filteredSales.reduce((s, sale) => s + sale.vat, 0);
   const totalDiscount = filteredSales.reduce((s, sale) => s + sale.discount, 0);
 
-  // Profit calculation using TP vs MRP
   const profitData = useMemo(() => {
-    let totalRevenue = 0;
-    let totalCost = 0;
+    let totalRevenue = 0, totalCost = 0;
     filteredSales.forEach((sale) => {
       sale.items.forEach((item) => {
         totalRevenue += item.total;
@@ -65,89 +63,75 @@ export default function ReportsPage() {
   };
 
   const tabs: { key: ReportTab; label: string; icon: typeof FileText }[] = [
-    { key: "sales", label: "Sales Report", icon: FileText },
-    { key: "profit", label: "Profit & Loss", icon: TrendingUp },
-    { key: "supplier", label: "Payment Summary", icon: DollarSign },
+    { key: "sales", label: "Sales", icon: FileText },
+    { key: "profit", label: "Profit", icon: TrendingUp },
+    { key: "supplier", label: "Payments", icon: DollarSign },
   ];
 
   return (
-    <div className="p-6 space-y-4 max-w-[1400px]">
-      <div className="flex items-center justify-between">
+    <div className="p-4 md:p-6 space-y-4 max-w-[1400px]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-bold text-foreground tracking-tight">Reports & Analytics</h2>
-          <p className="text-sm text-muted-foreground">Business intelligence overview</p>
+          <h2 className="text-xl md:text-2xl font-bold text-foreground tracking-tight">Reports & Analytics</h2>
+          <p className="text-xs md:text-sm text-muted-foreground">Business intelligence overview</p>
         </div>
         <Button variant="outline" size="sm" onClick={exportSalesCSV}>
-          <Download className="w-4 h-4 mr-1.5" /> Export CSV
+          <Download className="w-4 h-4 mr-1.5" /> Export
         </Button>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-1 bg-muted rounded-outer p-1">
+      <div className="flex gap-1 bg-muted rounded-outer p-1 overflow-x-auto">
         {tabs.map((t) => (
-          <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-inner text-sm font-medium transition-all ${
+          <button key={t.key} onClick={() => setTab(t.key)}
+            className={`flex items-center gap-1.5 px-3 md:px-4 py-2 rounded-inner text-xs md:text-sm font-medium transition-all whitespace-nowrap ${
               tab === t.key ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <t.icon className="w-4 h-4" /> {t.label}
+            }`}>
+            <t.icon className="w-3.5 h-3.5 md:w-4 md:h-4" /> {t.label}
           </button>
         ))}
       </div>
 
-      {/* Date Filter */}
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-end gap-3">
         <div>
           <label className="text-xs text-muted-foreground mb-1 block">From</label>
-          <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="w-40" />
+          <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="w-36 md:w-40" />
         </div>
         <div>
           <label className="text-xs text-muted-foreground mb-1 block">To</label>
-          <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="w-40" />
+          <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="w-36 md:w-40" />
         </div>
-        <div className="pt-5">
-          <Button variant="ghost" size="sm" onClick={() => { setDateFrom(""); setDateTo(""); }}>Clear</Button>
-        </div>
+        <Button variant="ghost" size="sm" onClick={() => { setDateFrom(""); setDateTo(""); }}>Clear</Button>
       </div>
 
       {tab === "sales" && (
         <div className="space-y-4">
-          {/* Summary Cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             <MetricCard label="Total Sales" value={`৳${totalSales.toFixed(2)}`} />
             <MetricCard label="Invoices" value={filteredSales.length.toString()} />
             <MetricCard label="VAT Collected" value={`৳${totalVat.toFixed(2)}`} />
-            <MetricCard label="Discounts Given" value={`৳${totalDiscount.toFixed(2)}`} />
+            <MetricCard label="Discounts" value={`৳${totalDiscount.toFixed(2)}`} />
           </div>
-
-          {/* Sales Table */}
           <div className="bg-card border border-border rounded-outer overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border bg-muted/50">
-                    <th className="text-left px-4 py-3 font-medium text-muted-foreground">Invoice</th>
-                    <th className="text-left px-4 py-3 font-medium text-muted-foreground">Customer</th>
-                    <th className="text-left px-4 py-3 font-medium text-muted-foreground">Date</th>
-                    <th className="text-right px-4 py-3 font-medium text-muted-foreground">Items</th>
-                    <th className="text-right px-4 py-3 font-medium text-muted-foreground">Total</th>
-                    <th className="text-left px-4 py-3 font-medium text-muted-foreground">Payment</th>
+                    <th className="text-left px-3 md:px-4 py-3 font-medium text-muted-foreground">Invoice</th>
+                    <th className="text-left px-3 md:px-4 py-3 font-medium text-muted-foreground">Customer</th>
+                    <th className="text-left px-3 md:px-4 py-3 font-medium text-muted-foreground hidden sm:table-cell">Date</th>
+                    <th className="text-right px-3 md:px-4 py-3 font-medium text-muted-foreground">Total</th>
+                    <th className="text-left px-3 md:px-4 py-3 font-medium text-muted-foreground hidden md:table-cell">Payment</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
                   {filteredSales.map((s) => (
                     <tr key={s.id} className="hover:bg-accent/50 transition-colors">
-                      <td className="px-4 py-3 font-mono-data text-xs">{s.invoiceNo}</td>
-                      <td className="px-4 py-3">{s.customerName}</td>
-                      <td className="px-4 py-3 text-xs text-muted-foreground">{new Date(s.date).toLocaleString()}</td>
-                      <td className="px-4 py-3 text-right font-mono-data">{s.items.length}</td>
-                      <td className="px-4 py-3 text-right font-mono-data font-semibold">৳{s.total.toFixed(2)}</td>
-                      <td className="px-4 py-3">
-                        <span className={`text-xs font-medium ${s.paymentMethod === "Due" ? "text-accent-due" : "text-muted-foreground"}`}>
-                          {s.paymentMethod}
-                        </span>
+                      <td className="px-3 md:px-4 py-3 font-mono-data text-xs">{s.invoiceNo}</td>
+                      <td className="px-3 md:px-4 py-3 text-sm truncate max-w-[120px]">{s.customerName}</td>
+                      <td className="px-3 md:px-4 py-3 text-xs text-muted-foreground hidden sm:table-cell">{new Date(s.date).toLocaleDateString()}</td>
+                      <td className="px-3 md:px-4 py-3 text-right font-mono-data font-semibold">৳{s.total.toFixed(2)}</td>
+                      <td className="px-3 md:px-4 py-3 hidden md:table-cell">
+                        <span className={`text-xs font-medium ${s.paymentMethod === "Due" ? "text-accent-due" : "text-muted-foreground"}`}>{s.paymentMethod}</span>
                       </td>
                     </tr>
                   ))}
@@ -161,14 +145,13 @@ export default function ReportsPage() {
       {tab === "profit" && (
         <div className="space-y-4">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            <MetricCard label="Total Revenue" value={`৳${profitData.totalRevenue.toFixed(2)}`} />
-            <MetricCard label="Cost of Goods" value={`৳${profitData.totalCost.toFixed(2)}`} />
+            <MetricCard label="Revenue" value={`৳${profitData.totalRevenue.toFixed(2)}`} />
+            <MetricCard label="Cost" value={`৳${profitData.totalCost.toFixed(2)}`} />
             <MetricCard label="Gross Profit" value={`৳${profitData.grossProfit.toFixed(2)}`} highlight />
-            <MetricCard label="Profit Margin" value={`${profitData.margin.toFixed(1)}%`} />
+            <MetricCard label="Margin" value={`${profitData.margin.toFixed(1)}%`} />
           </div>
-
-          <div className="bg-card border border-border rounded-outer p-5">
-            <h3 className="font-semibold text-foreground mb-4">Item-wise Profit Breakdown</h3>
+          <div className="bg-card border border-border rounded-outer p-4 md:p-5">
+            <h3 className="font-semibold text-foreground mb-4">Item-wise Profit</h3>
             <div className="space-y-2">
               {filteredSales.flatMap((s) => s.items).reduce((acc, item) => {
                 const existing = acc.find((a) => a.medicineId === item.medicineId);
@@ -181,13 +164,12 @@ export default function ReportsPage() {
                 const profit = item.total - cost;
                 return (
                   <div key={item.medicineId} className="flex items-center justify-between py-2 border-b border-border last:border-0">
-                    <div>
-                      <p className="text-sm font-medium text-foreground">{item.medicineName}</p>
-                      <p className="text-xs text-muted-foreground">{item.qty} units sold</p>
+                    <div className="min-w-0">
+                      <p className="text-xs md:text-sm font-medium text-foreground truncate">{item.medicineName}</p>
+                      <p className="text-[10px] md:text-xs text-muted-foreground">{item.qty} units sold</p>
                     </div>
-                    <div className="text-right">
-                      <p className="font-mono-data text-sm font-semibold text-accent-success">৳{profit.toFixed(2)}</p>
-                      <p className="font-mono-data text-[10px] text-muted-foreground">Revenue: ৳{item.total.toFixed(2)}</p>
+                    <div className="text-right shrink-0">
+                      <p className="font-mono-data text-xs md:text-sm font-semibold text-accent-success">৳{profit.toFixed(2)}</p>
                     </div>
                   </div>
                 );
@@ -198,27 +180,25 @@ export default function ReportsPage() {
       )}
 
       {tab === "supplier" && (
-        <div className="space-y-4">
-          <div className="bg-card border border-border rounded-outer overflow-hidden">
-            <div className="px-4 py-3 border-b border-border">
-              <h3 className="font-semibold text-sm text-foreground">Payment Method Breakdown</h3>
-            </div>
-            <div className="divide-y divide-border">
-              {Object.entries(paymentBreakdown).map(([method, data]) => (
-                <div key={method} className="px-4 py-3 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-inner bg-primary/10 flex items-center justify-center">
-                      <span className="text-xs font-bold text-primary">{method[0]}</span>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-foreground">{method}</p>
-                      <p className="text-xs text-muted-foreground">{data.count} transactions</p>
-                    </div>
+        <div className="bg-card border border-border rounded-outer overflow-hidden">
+          <div className="px-4 py-3 border-b border-border">
+            <h3 className="font-semibold text-sm text-foreground">Payment Method Breakdown</h3>
+          </div>
+          <div className="divide-y divide-border">
+            {Object.entries(paymentBreakdown).map(([method, data]) => (
+              <div key={method} className="px-3 md:px-4 py-3 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 md:w-10 md:h-10 rounded-inner bg-primary/10 flex items-center justify-center">
+                    <span className="text-xs font-bold text-primary">{method[0]}</span>
                   </div>
-                  <span className="font-mono-data font-semibold">৳{data.total.toFixed(2)}</span>
+                  <div>
+                    <p className="text-xs md:text-sm font-medium text-foreground">{method}</p>
+                    <p className="text-[10px] md:text-xs text-muted-foreground">{data.count} transactions</p>
+                  </div>
                 </div>
-              ))}
-            </div>
+                <span className="font-mono-data font-semibold text-sm">৳{data.total.toFixed(2)}</span>
+              </div>
+            ))}
           </div>
         </div>
       )}
@@ -228,9 +208,9 @@ export default function ReportsPage() {
 
 function MetricCard({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
   return (
-    <div className="bg-card border border-border rounded-outer p-4">
-      <p className="text-xs text-muted-foreground mb-1">{label}</p>
-      <p className={`text-xl font-bold font-mono-data tracking-tight ${highlight ? "text-primary" : "text-foreground"}`}>{value}</p>
+    <div className="bg-card border border-border rounded-outer p-3 md:p-4">
+      <p className="text-[10px] md:text-xs text-muted-foreground mb-1">{label}</p>
+      <p className={`text-lg md:text-xl font-bold font-mono-data tracking-tight ${highlight ? "text-primary" : "text-foreground"}`}>{value}</p>
     </div>
   );
 }

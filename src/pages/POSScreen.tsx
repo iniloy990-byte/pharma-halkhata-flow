@@ -3,7 +3,7 @@ import { usePharmacy } from "@/context/PharmacyContext";
 import { Medicine, Sale } from "@/types/pharmacy";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Plus, Minus, X, Banknote, Smartphone, CreditCard, Clock } from "lucide-react";
+import { Search, Plus, Minus, X, Banknote, Smartphone, CreditCard, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
 import InvoicePrint from "@/components/InvoicePrint";
 
@@ -37,6 +37,7 @@ export default function POSScreen() {
   const [discount, setDiscount] = useState(0);
   const [paidAmount, setPaidAmount] = useState<string>("");
   const [printInvoice, setPrintInvoice] = useState<Sale | null>(null);
+  const [showCart, setShowCart] = useState(false);
 
   const filtered = useMemo(() => {
     if (!search.trim()) return medicines.filter((m) => m.stock > 0 && !isExpired(m.expiry));
@@ -75,7 +76,6 @@ export default function POSScreen() {
   const isPartialPayment = dueAmount > 0;
   const isWalkIn = !selectedCustomer;
 
-  // Get selected customer's existing due
   const selectedCust = customers.find((c) => c.id === selectedCustomer);
   const existingDue = selectedCust?.dueBalance || 0;
 
@@ -85,14 +85,8 @@ export default function POSScreen() {
       toast.error("Due payment is not available for Walk-in customers. Please select a customer.");
       return;
     }
-    if (paid <= 0) {
-      toast.error("Paid amount must be greater than 0");
-      return;
-    }
-    if (paid > total) {
-      toast.error("Paid amount cannot exceed total");
-      return;
-    }
+    if (paid <= 0) { toast.error("Paid amount must be greater than 0"); return; }
+    if (paid > total) { toast.error("Paid amount cannot exceed total"); return; }
 
     const cust = customers.find((c) => c.id === selectedCustomer);
     const saleData: Omit<Sale, "id" | "invoiceNo"> = {
@@ -106,12 +100,8 @@ export default function POSScreen() {
         unitPrice: c.medicine.mrp,
         total: c.medicine.mrp * c.qty,
       })),
-      subtotal,
-      vat,
-      discount,
-      total,
-      paidAmount: paid,
-      dueAmount,
+      subtotal, vat, discount, total,
+      paidAmount: paid, dueAmount,
       paymentMethod: isPartialPayment
         ? `Partial (${selectedPayment === "cash" ? "Cash" : selectedPayment === "bkash" ? "bKash" : selectedPayment === "card" ? "Card" : "Cash"})`
         : selectedPayment === "cash" ? "Cash" : selectedPayment === "bkash" ? "bKash" : selectedPayment === "card" ? "Card" : "Due",
@@ -120,99 +110,36 @@ export default function POSScreen() {
     };
     addSale(saleData);
 
-    const invoiceSale: Sale = {
-      ...saleData,
-      id: "temp",
-      invoiceNo: `INV-${(sales?.length || 0) + 1002}`,
-    };
+    const invoiceSale: Sale = { ...saleData, id: "temp", invoiceNo: `INV-${(sales?.length || 0) + 1002}` };
     setPrintInvoice(invoiceSale);
     toast.success(`Sale completed — ৳${total.toFixed(2)}${isPartialPayment ? ` (Due: ৳${dueAmount.toFixed(2)})` : ""}`);
-    setCart([]);
-    setDiscount(0);
-    setPaidAmount("");
-    setSelectedCustomer("");
-    setSearch("");
+    setCart([]); setDiscount(0); setPaidAmount(""); setSelectedCustomer(""); setSearch(""); setShowCart(false);
   };
 
-  return (
-    <div className="flex h-screen overflow-hidden">
-      {/* Main Area */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <div className="flex items-center gap-4 px-6 h-16 border-b border-border bg-card">
-          <h2 className="text-lg font-bold text-foreground tracking-tight">Point of Sale</h2>
-          <div className="flex-1 max-w-xl relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search medicine — Brand, Generic, or Barcode..." className="pl-10 h-10" autoFocus />
-          </div>
-          <div className="text-xs text-muted-foreground font-mono-data">F2: Search &middot; F8: Checkout</div>
-        </div>
-
-        <div className="flex-1 overflow-auto p-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
-            {filtered.map((med) => {
-              const stockStatus = getStockStatus(med.stock);
-              const expSoon = isExpiringSoon(med.expiry);
-              return (
-                <button key={med.id} onClick={() => addToCart(med)} disabled={stockStatus === "out"}
-                  className={`medicine-card text-left cursor-pointer ${stockStatus === "out" ? "opacity-50 cursor-not-allowed" : ""}`}>
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <p className="font-semibold text-sm text-foreground truncate text-balance">{med.name}</p>
-                      <p className="text-xs text-muted-foreground truncate">{med.generic}</p>
-                    </div>
-                    <div className="flex gap-1 shrink-0">
-                      {stockStatus === "low" && <span className="status-badge status-low-stock">Low</span>}
-                      {stockStatus === "out" && <span className="status-badge status-expired">Out</span>}
-                      {expSoon && <span className="status-badge status-expired">Exp Soon</span>}
-                      {stockStatus === "ok" && !expSoon && <span className="status-badge status-in-stock">In Stock</span>}
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between mt-2 pt-2 border-t border-border">
-                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                      <span>{med.form}</span><span>&middot;</span><span>{med.manufacturer}</span>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-mono-data font-semibold text-foreground">৳{med.mrp.toFixed(2)}</p>
-                      <p className="text-[10px] text-muted-foreground font-mono-data">Stock: {med.stock}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 mt-1 text-[10px] text-muted-foreground font-mono-data">
-                    <span>Batch: {med.batch}</span><span>Exp: {med.expiry}</span>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-          {filtered.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
-              <Search className="w-8 h-8 mb-3 opacity-40" />
-              <p className="text-sm">No medicines found{search ? ` for "${search}"` : ""}</p>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Cart Sidebar */}
-      <div className="w-[360px] border-l border-border bg-card flex flex-col">
-        <div className="px-4 h-16 flex items-center justify-between border-b border-border">
+  const cartSidebar = (
+    <div className={`${showCart ? "fixed inset-0 z-50 lg:static lg:z-auto" : "hidden lg:flex"} lg:w-[360px] lg:border-l lg:border-border lg:bg-card flex flex-col`}>
+      {/* Mobile overlay */}
+      {showCart && <div className="fixed inset-0 bg-black/50 lg:hidden" onClick={() => setShowCart(false)} />}
+      <div className={`${showCart ? "fixed right-0 top-0 bottom-0 w-[320px] sm:w-[360px] z-50" : ""} bg-card flex flex-col h-full`}>
+        <div className="px-4 h-14 lg:h-16 flex items-center justify-between border-b border-border">
           <h3 className="font-bold text-foreground">Current Sale</h3>
-          <span className="text-xs text-muted-foreground font-mono-data">{cart.length} item{cart.length !== 1 ? "s" : ""}</span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground font-mono-data">{cart.length} item{cart.length !== 1 ? "s" : ""}</span>
+            <button onClick={() => setShowCart(false)} className="lg:hidden p-1"><X className="w-4 h-4" /></button>
+          </div>
         </div>
 
         <div className="flex-1 overflow-auto">
           {cart.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-muted-foreground px-6">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="opacity-30">
-                <circle cx="8" cy="21" r="1" /><circle cx="19" cy="21" r="1" />
-                <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
-              </svg>
+              <ShoppingCart className="w-10 h-10 opacity-30" />
               <p className="text-sm mt-3">No items in cart</p>
               <p className="text-xs mt-1">Click a medicine to add it</p>
             </div>
           ) : (
             <div className="divide-y divide-border">
               {cart.map((item) => (
-                <div key={item.medicine.id} className="px-4 py-3 animate-fade-in">
+                <div key={item.medicine.id} className="px-4 py-3">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
                       <p className="text-sm font-medium text-foreground truncate">{item.medicine.name}</p>
@@ -237,8 +164,7 @@ export default function POSScreen() {
         </div>
 
         {/* Checkout */}
-        <div className="border-t border-border p-4 space-y-3 bg-background/50">
-          {/* Customer Select */}
+        <div className="border-t border-border p-3 lg:p-4 space-y-3 bg-background/50">
           <div>
             <label className="text-xs text-muted-foreground mb-1 block">Customer Account</label>
             <select value={selectedCustomer} onChange={(e) => setSelectedCustomer(e.target.value)}
@@ -248,7 +174,6 @@ export default function POSScreen() {
             </select>
           </div>
 
-          {/* Totals */}
           <div className="space-y-1.5 text-sm">
             <div className="flex justify-between text-muted-foreground"><span>Subtotal</span><span className="font-mono-data">৳{subtotal.toFixed(2)}</span></div>
             <div className="flex justify-between text-muted-foreground"><span>VAT ({settings.vatRate}%)</span><span className="font-mono-data">৳{vat.toFixed(2)}</span></div>
@@ -261,7 +186,6 @@ export default function POSScreen() {
             </div>
           </div>
 
-          {/* Payment Method */}
           <div className="grid grid-cols-3 gap-2">
             {[
               { id: "cash", label: "Cash", icon: Banknote },
@@ -269,25 +193,18 @@ export default function POSScreen() {
               { id: "card", label: "Card", icon: CreditCard },
             ].map((method) => (
               <Button key={method.id} variant={selectedPayment === method.id ? "default" : "pos-method"} size="sm"
-                onClick={() => setSelectedPayment(method.id)} className="flex flex-col items-center gap-1 h-auto py-2.5">
+                onClick={() => setSelectedPayment(method.id)} className="flex flex-col items-center gap-1 h-auto py-2">
                 <method.icon className="w-4 h-4" /><span className="text-[10px]">{method.label}</span>
               </Button>
             ))}
           </div>
 
-          {/* Paid Amount - for partial payment */}
           <div>
             <label className="text-xs text-muted-foreground mb-1 block">Paid Amount</label>
-            <Input
-              type="number"
-              value={paidAmount}
-              onChange={(e) => setPaidAmount(e.target.value)}
-              placeholder={`Full: ৳${total.toFixed(2)}`}
-              className="h-9 font-mono-data text-sm"
-            />
+            <Input type="number" value={paidAmount} onChange={(e) => setPaidAmount(e.target.value)}
+              placeholder={`Full: ৳${total.toFixed(2)}`} className="h-9 font-mono-data text-sm" />
           </div>
 
-          {/* Due display */}
           {isPartialPayment && cart.length > 0 && (
             <div className={`rounded-inner p-3 space-y-1 ${isWalkIn ? "bg-destructive/10 border border-destructive/30" : "bg-accent-due/10 border border-accent-due/30"}`}>
               {isWalkIn ? (
@@ -318,8 +235,73 @@ export default function POSScreen() {
           </Button>
         </div>
       </div>
+    </div>
+  );
 
-      {/* Invoice Print Overlay */}
+  return (
+    <div className="flex h-[calc(100vh-56px)] lg:h-screen overflow-hidden">
+      {/* Main Area */}
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+        <div className="flex items-center gap-2 md:gap-4 px-3 md:px-6 h-14 lg:h-16 border-b border-border bg-card">
+          <h2 className="text-base lg:text-lg font-bold text-foreground tracking-tight shrink-0 hidden sm:block">POS</h2>
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search medicine..." className="pl-10 h-9 lg:h-10" autoFocus />
+          </div>
+          {/* Mobile cart button */}
+          <Button variant="outline" size="sm" className="lg:hidden relative" onClick={() => setShowCart(true)}>
+            <ShoppingCart className="w-4 h-4" />
+            {cart.length > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center font-bold">
+                {cart.length}
+              </span>
+            )}
+          </Button>
+        </div>
+
+        <div className="flex-1 overflow-auto p-3 md:p-4">
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 md:gap-3">
+            {filtered.map((med) => {
+              const stockStatus = getStockStatus(med.stock);
+              const expSoon = isExpiringSoon(med.expiry);
+              return (
+                <button key={med.id} onClick={() => addToCart(med)} disabled={stockStatus === "out"}
+                  className={`medicine-card text-left cursor-pointer ${stockStatus === "out" ? "opacity-50 cursor-not-allowed" : ""}`}>
+                  <div className="flex items-start justify-between gap-1">
+                    <div className="min-w-0">
+                      <p className="font-semibold text-xs md:text-sm text-foreground truncate">{med.name}</p>
+                      <p className="text-[10px] md:text-xs text-muted-foreground truncate">{med.generic}</p>
+                    </div>
+                    <div className="flex gap-1 shrink-0">
+                      {stockStatus === "low" && <span className="status-badge status-low-stock">Low</span>}
+                      {stockStatus === "out" && <span className="status-badge status-expired">Out</span>}
+                      {expSoon && <span className="status-badge status-expired">Exp</span>}
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between mt-2 pt-2 border-t border-border">
+                    <div className="hidden sm:flex items-center gap-2 text-[10px] md:text-xs text-muted-foreground">
+                      <span>{med.form}</span>
+                    </div>
+                    <div className="text-right ml-auto">
+                      <p className="font-mono-data font-semibold text-foreground text-xs md:text-sm">৳{med.mrp.toFixed(2)}</p>
+                      <p className="text-[10px] text-muted-foreground font-mono-data">Stock: {med.stock}</p>
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+          {filtered.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
+              <Search className="w-8 h-8 mb-3 opacity-40" />
+              <p className="text-sm">No medicines found{search ? ` for "${search}"` : ""}</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {cartSidebar}
+
       {printInvoice && (
         <InvoicePrint sale={printInvoice} settings={settings} onClose={() => setPrintInvoice(null)} />
       )}
