@@ -187,7 +187,7 @@ export default function ReportsPage() {
                     </div>
                     <div className="text-right">
                       <p className="font-mono-data text-sm font-semibold text-accent-success">৳{profit.toFixed(2)}</p>
-                      <p className="font-mono-data text-[10px] text-muted-foreground">Revenue: ৳{item.revenue.toFixed(2)}</p>
+                      <p className="font-mono-data text-[10px] text-muted-foreground">Revenue: ৳{item.total.toFixed(2)}</p>
                     </div>
                   </div>
                 );
