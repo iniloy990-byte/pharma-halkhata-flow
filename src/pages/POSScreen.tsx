@@ -1,10 +1,11 @@
 import { useState, useMemo } from "react";
 import { usePharmacy } from "@/context/PharmacyContext";
-import { Medicine } from "@/types/pharmacy";
+import { Medicine, Sale } from "@/types/pharmacy";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Plus, Minus, X, Banknote, Smartphone, CreditCard, Clock } from "lucide-react";
 import { toast } from "sonner";
+import InvoicePrint from "@/components/InvoicePrint";
 
 interface CartItem {
   medicine: Medicine;
