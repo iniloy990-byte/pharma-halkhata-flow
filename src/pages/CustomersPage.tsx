@@ -34,6 +34,13 @@ export default function CustomersPage() {
         payments={custPayments}
         onBack={() => setSelectedCustomer(null)}
         onPayment={() => setShowPaymentForm(true)}
+        onDelete={() => {
+          if (window.confirm(`Are you sure you want to delete "${cust.name}"?`)) {
+            deleteCustomer(cust.id);
+            setSelectedCustomer(null);
+            toast.success("Customer deleted");
+          }
+        }}
         showPaymentForm={showPaymentForm}
         onSubmitPayment={(amount, method, note) => {
           addPayment({ customerId: cust.id, amount, method, note, date: new Date().toISOString() });
@@ -108,12 +115,13 @@ export default function CustomersPage() {
   );
 }
 
-function CustomerDetail({ customer, sales, payments, onBack, onPayment, showPaymentForm, onSubmitPayment, onCancelPayment }: {
+function CustomerDetail({ customer, sales, payments, onBack, onPayment, onDelete, showPaymentForm, onSubmitPayment, onCancelPayment }: {
   customer: Customer;
   sales: any[];
   payments: Payment[];
   onBack: () => void;
   onPayment: () => void;
+  onDelete: () => void;
   showPaymentForm: boolean;
   onSubmitPayment: (amount: number, method: string, note: string) => void;
   onCancelPayment: () => void;
@@ -151,6 +159,9 @@ function CustomerDetail({ customer, sales, payments, onBack, onPayment, showPaym
       <div className="flex items-center gap-2">
         <Button size="sm" variant={customer.dueBalance > 0 ? "due" : "outline"} onClick={onPayment} disabled={customer.dueBalance <= 0}>
           <Banknote className="w-4 h-4 mr-1.5" /> Receive Payment
+        </Button>
+        <Button size="sm" variant="destructive" onClick={onDelete}>
+          <X className="w-4 h-4 mr-1.5" /> Delete Customer
         </Button>
       </div>
 
