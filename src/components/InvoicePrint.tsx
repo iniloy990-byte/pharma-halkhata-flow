@@ -1,6 +1,6 @@
 import { Sale, PharmacySettings } from "@/types/pharmacy";
 import { Button } from "@/components/ui/button";
-import { Printer, Download, X } from "lucide-react";
+import { Printer, X } from "lucide-react";
 
 interface InvoicePrintProps {
   sale: Sale;
@@ -104,6 +104,18 @@ export default function InvoicePrint({ sale, settings, onClose }: InvoicePrintPr
               <span>Total</span>
               <span className="font-mono">{settings.currency}{sale.total.toFixed(2)}</span>
             </div>
+            <div className="flex justify-between text-muted-foreground">
+              <span>Paid</span>
+              <span className="font-mono font-medium text-foreground">{settings.currency}{sale.paidAmount.toFixed(2)}</span>
+            </div>
+            {sale.dueAmount > 0 && (
+              <>
+                <div className="flex justify-between font-semibold text-accent-due border-t border-dashed border-border pt-1 mt-1">
+                  <span>Current Due</span>
+                  <span className="font-mono">{settings.currency}{sale.dueAmount.toFixed(2)}</span>
+                </div>
+              </>
+            )}
             <div className="flex justify-between text-muted-foreground">
               <span>Payment</span>
               <span className="font-medium text-foreground">{sale.paymentMethod}</span>
