@@ -29,7 +29,7 @@ function isExpired(expiry: string) {
 }
 
 export default function POSScreen() {
-  const { medicines, settings, customers, addSale } = usePharmacy();
+  const { medicines, settings, customers, sales, addSale } = usePharmacy();
   const [search, setSearch] = useState("");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [selectedPayment, setSelectedPayment] = useState("cash");
