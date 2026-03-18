@@ -18,14 +18,7 @@ export const defaultMedicines: Medicine[] = [
   { id: "m15", name: "Cef-3 200", generic: "Cefixime 200mg", form: "Capsule", manufacturer: "Square", mrp: 20, tp: 15, stock: 75, batch: "CF-2024-056", expiry: "2025-07", minStock: 15 },
 ];
 
-export const defaultCustomers: Customer[] = [
-  { id: "c1", name: "Rahim Uddin", phone: "01712345678", address: "Mirpur, Dhaka", dueBalance: 2450 },
-  { id: "c2", name: "Fatema Begum", phone: "01898765432", address: "Dhanmondi, Dhaka", dueBalance: 680 },
-  { id: "c3", name: "Kamal Hossain", phone: "01556789012", address: "Uttara, Dhaka", dueBalance: 0 },
-  { id: "c4", name: "Nasreen Akhter", phone: "01634567890", address: "Gulshan, Dhaka", dueBalance: 1200 },
-  { id: "c5", name: "Abdul Mannan", phone: "01923456789", address: "Mohammadpur, Dhaka", dueBalance: 5600 },
-  { id: "c6", name: "Salma Khatun", phone: "01445678901", address: "Banani, Dhaka", dueBalance: 340 },
-];
+export const defaultCustomers: Customer[] = [];
 
 const now = new Date();
 const today = now.toISOString().split("T")[0];
