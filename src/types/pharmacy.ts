@@ -39,6 +39,8 @@ export interface Sale {
   vat: number;
   discount: number;
   total: number;
+  paidAmount: number;
+  dueAmount: number;
   paymentMethod: string;
   date: string; // ISO
   salesperson: string;
