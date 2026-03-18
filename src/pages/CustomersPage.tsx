@@ -108,12 +108,13 @@ export default function CustomersPage() {
   );
 }
 
-function CustomerDetail({ customer, sales, payments, onBack, onPayment, showPaymentForm, onSubmitPayment, onCancelPayment }: {
+function CustomerDetail({ customer, sales, payments, onBack, onPayment, onDelete, showPaymentForm, onSubmitPayment, onCancelPayment }: {
   customer: Customer;
   sales: any[];
   payments: Payment[];
   onBack: () => void;
   onPayment: () => void;
+  onDelete: () => void;
   showPaymentForm: boolean;
   onSubmitPayment: (amount: number, method: string, note: string) => void;
   onCancelPayment: () => void;
