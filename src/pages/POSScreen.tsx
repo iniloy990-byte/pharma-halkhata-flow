@@ -35,6 +35,7 @@ export default function POSScreen() {
   const [selectedPayment, setSelectedPayment] = useState("cash");
   const [selectedCustomer, setSelectedCustomer] = useState("");
   const [discount, setDiscount] = useState(0);
+  const [printInvoice, setPrintInvoice] = useState<Sale | null>(null);
 
   const filtered = useMemo(() => {
     if (!search.trim()) return medicines.filter((m) => m.stock > 0 && !isExpired(m.expiry));
