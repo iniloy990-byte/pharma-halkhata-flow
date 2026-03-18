@@ -178,7 +178,7 @@ export default function ReportsPage() {
               }, [] as typeof filteredSales[0]["items"]).map((item) => {
                 const med = medicines.find((m) => m.id === item.medicineId);
                 const cost = (med?.tp || 0) * item.qty;
-                const profit = item.revenue - cost;
+                const profit = item.total - cost;
                 return (
                   <div key={item.medicineId} className="flex items-center justify-between py-2 border-b border-border last:border-0">
                     <div>
