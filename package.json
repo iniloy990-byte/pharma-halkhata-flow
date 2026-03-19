@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "main": "electron/main.cjs",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -10,7 +11,31 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "electron:dev": "vite build && electron .",
+    "electron:build": "vite build && electron-builder --win",
+    "electron:build:linux": "vite build && electron-builder --linux",
+    "electron:build:mac": "vite build && electron-builder --mac"
+  },
+  "build": {
+    "appId": "com.pharmastream.app",
+    "productName": "PharmaStream",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "public/favicon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "public/favicon.ico"
+    }
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
