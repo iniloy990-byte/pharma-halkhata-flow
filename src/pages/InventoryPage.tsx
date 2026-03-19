@@ -69,32 +69,21 @@ export default function InventoryPage() {
           return;
         }
         const meds: Omit<Medicine, "id">[] = [];
-        const skippedRows: number[] = [];
         for (let i = 1; i < lines.length; i++) {
           const parts = parseCSVLine(lines[i]);
-          if (parts.length < 9) { skippedRows.push(i + 1); continue; }
-          const name = parts[0]?.trim();
-          const generic = parts[1]?.trim();
-          const batch = parts[7]?.trim();
-          const expiry = parts[8]?.trim();
-          const mrp = parseFloat(parts[4]);
-          const stock = parseInt(parts[6]);
-          // Required: Name, Generic, MRP, Stock, Batch, Expiry
-          if (!name || !generic || !batch || !expiry || isNaN(mrp) || isNaN(stock)) {
-            skippedRows.push(i + 1);
-            continue;
-          }
+          if (parts.length < 2) continue;
           meds.push({
-            name, generic,
+            name: parts[0]?.trim() || "Unknown",
+            generic: parts[1]?.trim() || "Unknown",
             form: parts[2]?.trim() || "Tablet",
             manufacturer: parts[3]?.trim() || "",
-            mrp, tp: parseFloat(parts[5]) || 0, stock,
-            batch, expiry,
+            mrp: parseFloat(parts[4]) || 0,
+            tp: parseFloat(parts[5]) || 0,
+            stock: parseInt(parts[6]) || 0,
+            batch: parts[7]?.trim() || "",
+            expiry: parts[8]?.trim() || "",
             minStock: parseInt(parts[9]) || 10,
           });
-        }
-        if (skippedRows.length > 0) {
-          toast.warning(`Skipped ${skippedRows.length} row(s) with missing required fields (Name, Generic, MRP, Stock, Batch, Expiry)`);
         }
         if (meds.length === 0) {
           toast.error("No valid medicines found in CSV");
