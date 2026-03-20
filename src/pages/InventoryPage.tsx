@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { usePharmacy } from "@/context/PharmacyContext";
+import { useAuth } from "@/context/AuthContext";
 import { Medicine } from "@/types/pharmacy";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
