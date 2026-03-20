@@ -188,9 +188,11 @@ export default function InventoryPage() {
                   <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditingMed(m); setShowForm(true); }}>
                     <Pencil className="w-3 h-3" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDelete(m.id)}>
-                    <Trash2 className="w-3 h-3" />
-                  </Button>
+                  {isAdmin && (
+                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDelete(m.id)}>
+                      <Trash2 className="w-3 h-3" />
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>
