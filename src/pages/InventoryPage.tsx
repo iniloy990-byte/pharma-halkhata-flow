@@ -11,6 +11,7 @@ import { toast } from "sonner";
 
 export default function InventoryPage() {
   const { medicines, addMedicine, updateMedicine, deleteMedicine, importMedicines } = usePharmacy();
+  const { isAdmin } = useAuth();
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editingMed, setEditingMed] = useState<Medicine | null>(null);
