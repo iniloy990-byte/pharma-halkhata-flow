@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { usePharmacy } from "@/context/PharmacyContext";
+import { useAuth } from "@/context/AuthContext";
 import { Medicine } from "@/types/pharmacy";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +11,7 @@ import { toast } from "sonner";
 
 export default function InventoryPage() {
   const { medicines, addMedicine, updateMedicine, deleteMedicine, importMedicines } = usePharmacy();
+  const { isAdmin } = useAuth();
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editingMed, setEditingMed] = useState<Medicine | null>(null);
@@ -186,9 +188,11 @@ export default function InventoryPage() {
                   <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditingMed(m); setShowForm(true); }}>
                     <Pencil className="w-3 h-3" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDelete(m.id)}>
-                    <Trash2 className="w-3 h-3" />
-                  </Button>
+                  {isAdmin && (
+                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDelete(m.id)}>
+                      <Trash2 className="w-3 h-3" />
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>
@@ -246,9 +250,11 @@ export default function InventoryPage() {
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditingMed(m); setShowForm(true); }}>
                           <Pencil className="w-3.5 h-3.5" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(m.id)}>
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </Button>
+                        {isAdmin && (
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(m.id)}>
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        )}
                       </div>
                     </td>
                   </tr>

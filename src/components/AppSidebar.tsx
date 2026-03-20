@@ -1,7 +1,8 @@
 import { NavLink, useLocation } from "react-router-dom";
 import {
-  LayoutDashboard, ShoppingCart, Package, AlertTriangle, Users, FileText, Settings, Pill, X,
+  LayoutDashboard, ShoppingCart, Package, AlertTriangle, Users, FileText, Settings, Pill, X, Shield, LogOut,
 } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 const navItems = [
   { to: "/", icon: LayoutDashboard, label: "Dashboard" },
@@ -12,12 +13,38 @@ const navItems = [
   { to: "/reports", icon: FileText, label: "Reports" },
 ];
 
+const adminItems = [
+  { to: "/users", icon: Shield, label: "Manage Users" },
+  { to: "/settings", icon: Settings, label: "Settings" },
+];
+
 interface AppSidebarProps {
   onClose?: () => void;
 }
 
 export default function AppSidebar({ onClose }: AppSidebarProps) {
   const location = useLocation();
+  const { isAdmin, role, user, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
+
+  const renderLink = (item: typeof navItems[0], isActive: boolean) => (
+    <NavLink
+      key={item.to}
+      to={item.to}
+      onClick={onClose}
+      className={`flex items-center gap-3 px-3 py-2.5 rounded-outer text-sm font-medium transition-all ${
+        isActive
+          ? "bg-sidebar-primary text-sidebar-primary-foreground"
+          : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+      }`}
+    >
+      <item.icon className="w-4 h-4 shrink-0" />
+      {item.label}
+    </NavLink>
+  );
 
   return (
     <aside className="flex flex-col h-screen bg-sidebar text-sidebar-foreground w-[240px] border-r border-sidebar-border">
@@ -28,7 +55,9 @@ export default function AppSidebar({ onClose }: AppSidebarProps) {
           </div>
           <div>
             <h1 className="text-sm font-bold text-sidebar-accent-foreground tracking-tight">PharmaStream</h1>
-            <p className="text-[10px] text-sidebar-muted uppercase tracking-widest">BD</p>
+            <p className="text-[10px] text-sidebar-muted uppercase tracking-widest">
+              {role ?? "user"}
+            </p>
           </div>
         </div>
         {onClose && (
@@ -38,36 +67,30 @@ export default function AppSidebar({ onClose }: AppSidebarProps) {
         )}
       </div>
 
-      <nav className="flex-1 py-4 px-3 space-y-1">
-        {navItems.map((item) => {
-          const isActive = location.pathname === item.to;
-          return (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              onClick={onClose}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-outer text-sm font-medium transition-all ${
-                isActive
-                  ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                  : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-              }`}
-            >
-              <item.icon className="w-4 h-4 shrink-0" />
-              {item.label}
-            </NavLink>
-          );
-        })}
+      <nav className="flex-1 py-4 px-3 space-y-1 overflow-auto">
+        {navItems.map((item) => renderLink(item, location.pathname === item.to))}
+
+        {isAdmin && (
+          <>
+            <div className="pt-3 pb-1 px-3">
+              <p className="text-[10px] text-sidebar-muted uppercase tracking-widest font-semibold">Admin</p>
+            </div>
+            {adminItems.map((item) => renderLink(item, location.pathname === item.to))}
+          </>
+        )}
       </nav>
 
-      <div className="px-3 py-4 border-t border-sidebar-border">
-        <NavLink
-          to="/settings"
-          onClick={onClose}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-outer text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all"
+      <div className="px-3 py-4 border-t border-sidebar-border space-y-1">
+        <div className="px-3 py-1.5">
+          <p className="text-xs text-sidebar-foreground truncate">{user?.email}</p>
+        </div>
+        <button
+          onClick={handleSignOut}
+          className="flex items-center gap-3 px-3 py-2.5 rounded-outer text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all w-full"
         >
-          <Settings className="w-4 h-4" />
-          Settings
-        </NavLink>
+          <LogOut className="w-4 h-4" />
+          Sign Out
+        </button>
       </div>
     </aside>
   );
