@@ -325,9 +325,14 @@ function MedicineForm({ medicine, onSave, onCancel }: {
         <div className="sm:col-span-2"><label className="text-xs text-muted-foreground mb-1 block">Brand Name *</label><Input value={form.name} onChange={(e) => set("name", e.target.value)} required /></div>
         <div className="sm:col-span-2"><label className="text-xs text-muted-foreground mb-1 block">Generic Name *</label><Input value={form.generic} onChange={(e) => set("generic", e.target.value)} required /></div>
         <div><label className="text-xs text-muted-foreground mb-1 block">Form</label>
-          <select value={form.form} onChange={(e) => set("form", e.target.value)} className="w-full h-10 rounded-outer border border-input bg-background px-3 text-sm">
-            <option>Tablet</option><option>Capsule</option><option>Syrup</option><option>Injection</option><option>Cream</option><option>Drops</option><option>Inhaler</option><option>Suppository</option>
-          </select>
+          <Select value={form.form} onValueChange={(val) => set("form", val)}>
+            <SelectTrigger><SelectValue placeholder="Select form" /></SelectTrigger>
+            <SelectContent>
+              {["Tablet", "Capsule", "Syrup", "Injection", "Cream", "Drops", "Inhaler", "Suppository"].map((f) => (
+                <SelectItem key={f} value={f}>{f}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <div><label className="text-xs text-muted-foreground mb-1 block">Manufacturer</label><Input value={form.manufacturer} onChange={(e) => set("manufacturer", e.target.value)} /></div>
         <div><label className="text-xs text-muted-foreground mb-1 block">MRP (৳)</label><Input type="number" step="0.01" value={form.mrp} onChange={(e) => set("mrp", e.target.value)} /></div>
