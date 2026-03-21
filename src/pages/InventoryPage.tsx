@@ -5,6 +5,9 @@ import { Medicine } from "@/types/pharmacy";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
+import {
   Search, Plus, Upload, Download, Pencil, Trash2, X, Package,
 } from "lucide-react";
 import { toast } from "sonner";
