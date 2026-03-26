@@ -40,7 +40,7 @@ const App = () => (
         <PharmacyProvider>
           <Toaster />
           <Sonner />
-          <BrowserRouter>
+          <HashRouter>
             <Routes>
               <Route path="/login" element={<LoginPage />} />
               <Route path="/" element={<ProtectedRoute><AppLayout><DashboardPage /></AppLayout></ProtectedRoute>} />
@@ -53,7 +53,7 @@ const App = () => (
               <Route path="/users" element={<ProtectedRoute><AdminRoute><AppLayout><ManageUsersPage /></AppLayout></AdminRoute></ProtectedRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </BrowserRouter>
+          </HashRouter>
         </PharmacyProvider>
       </AuthProvider>
     </TooltipProvider>
