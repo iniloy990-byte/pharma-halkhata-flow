@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { usePharmacy } from "@/context/PharmacyContext";
-import { useAuth } from "@/context/AuthContext";
+
 import { Medicine } from "@/types/pharmacy";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +14,7 @@ import { toast } from "sonner";
 
 export default function InventoryPage() {
   const { medicines, addMedicine, updateMedicine, deleteMedicine, importMedicines } = usePharmacy();
-  const { isAdmin } = useAuth();
+  const isAdmin = true;
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editingMed, setEditingMed] = useState<Medicine | null>(null);
