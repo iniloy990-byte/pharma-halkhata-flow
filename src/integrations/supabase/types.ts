@@ -14,6 +14,149 @@ export type Database = {
   }
   public: {
     Tables: {
+      customers: {
+        Row: {
+          address: string
+          created_at: string
+          due_balance: number
+          id: string
+          name: string
+          phone: string
+        }
+        Insert: {
+          address?: string
+          created_at?: string
+          due_balance?: number
+          id?: string
+          name: string
+          phone?: string
+        }
+        Update: {
+          address?: string
+          created_at?: string
+          due_balance?: number
+          id?: string
+          name?: string
+          phone?: string
+        }
+        Relationships: []
+      }
+      medicines: {
+        Row: {
+          batch: string
+          created_at: string
+          expiry: string
+          form: string
+          generic: string
+          id: string
+          manufacturer: string
+          min_stock: number
+          mrp: number
+          name: string
+          stock: number
+          tp: number
+        }
+        Insert: {
+          batch?: string
+          created_at?: string
+          expiry?: string
+          form?: string
+          generic?: string
+          id?: string
+          manufacturer?: string
+          min_stock?: number
+          mrp?: number
+          name: string
+          stock?: number
+          tp?: number
+        }
+        Update: {
+          batch?: string
+          created_at?: string
+          expiry?: string
+          form?: string
+          generic?: string
+          id?: string
+          manufacturer?: string
+          min_stock?: number
+          mrp?: number
+          name?: string
+          stock?: number
+          tp?: number
+        }
+        Relationships: []
+      }
+      payments: {
+        Row: {
+          amount: number
+          created_at: string
+          customer_id: string
+          date: string
+          id: string
+          method: string
+          note: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          customer_id: string
+          date?: string
+          id?: string
+          method?: string
+          note?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          customer_id?: string
+          date?: string
+          id?: string
+          method?: string
+          note?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pharmacy_settings: {
+        Row: {
+          address: string
+          created_at: string
+          currency: string
+          id: string
+          name: string
+          phone: string
+          receipt_width: string
+          vat_rate: number
+        }
+        Insert: {
+          address?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          name?: string
+          phone?: string
+          receipt_width?: string
+          vat_rate?: number
+        }
+        Update: {
+          address?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          name?: string
+          phone?: string
+          receipt_width?: string
+          vat_rate?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -34,6 +177,113 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      sale_items: {
+        Row: {
+          generic: string
+          id: string
+          medicine_id: string | null
+          medicine_name: string
+          qty: number
+          sale_id: string
+          total: number
+          unit_price: number
+        }
+        Insert: {
+          generic?: string
+          id?: string
+          medicine_id?: string | null
+          medicine_name: string
+          qty?: number
+          sale_id: string
+          total?: number
+          unit_price?: number
+        }
+        Update: {
+          generic?: string
+          id?: string
+          medicine_id?: string | null
+          medicine_name?: string
+          qty?: number
+          sale_id?: string
+          total?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sale_items_medicine_id_fkey"
+            columns: ["medicine_id"]
+            isOneToOne: false
+            referencedRelation: "medicines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sale_items_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
+            referencedRelation: "sales"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales: {
+        Row: {
+          created_at: string
+          customer_id: string | null
+          customer_name: string
+          date: string
+          discount: number
+          due_amount: number
+          id: string
+          invoice_no: string
+          paid_amount: number
+          payment_method: string
+          salesperson: string
+          subtotal: number
+          total: number
+          vat: number
+        }
+        Insert: {
+          created_at?: string
+          customer_id?: string | null
+          customer_name?: string
+          date?: string
+          discount?: number
+          due_amount?: number
+          id?: string
+          invoice_no: string
+          paid_amount?: number
+          payment_method?: string
+          salesperson?: string
+          subtotal?: number
+          total?: number
+          vat?: number
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string | null
+          customer_name?: string
+          date?: string
+          discount?: number
+          due_amount?: number
+          id?: string
+          invoice_no?: string
+          paid_amount?: number
+          payment_method?: string
+          salesperson?: string
+          subtotal?: number
+          total?: number
+          vat?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
