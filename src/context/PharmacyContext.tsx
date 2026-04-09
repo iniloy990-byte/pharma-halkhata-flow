@@ -47,12 +47,13 @@ export function PharmacyProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     async function fetchAll() {
       try {
-        const [medsRes, custRes, salesRes, paymentsRes, settingsRes] = await Promise.all([
+        const [medsRes, custRes, salesRes, paymentsRes, settingsRes, dueRes] = await Promise.all([
           supabase.from("medicines").select("*").order("name"),
           supabase.from("customers").select("*").order("name"),
           supabase.from("sales").select("*").order("date", { ascending: false }),
           supabase.from("payments").select("*").order("date", { ascending: false }),
           supabase.from("pharmacy_settings").select("*").limit(1),
+          supabase.from("due_entries").select("*").order("date", { ascending: false }),
         ]);
 
         if (medsRes.data) {
@@ -103,6 +104,14 @@ export function PharmacyProvider({ children }: { children: ReactNode }) {
             id: p.id, customerId: p.customer_id, amount: Number(p.amount),
             method: p.method, date: p.date, note: p.note,
           })));
+        }
+
+        if (dueRes.data) {
+          setDueEntries(dueRes.data.map((d: any) => ({
+            id: d.id, customerId: d.customer_id, amount: Number(d.amount),
+            note: d.note, date: d.date,
+          })));
+        }
         }
 
         if (settingsRes.data && settingsRes.data.length > 0) {
@@ -284,6 +293,27 @@ export function PharmacyProvider({ children }: { children: ReactNode }) {
     );
   }, [customers]);
 
+  const addDueEntry = useCallback(async (entry: Omit<DueEntry, "id">) => {
+    const { data, error } = await supabase.from("due_entries").insert({
+      customer_id: entry.customerId, amount: entry.amount,
+      note: entry.note, date: entry.date,
+    }).select().single();
+    if (error) { console.error(error); return; }
+
+    // Update customer due balance
+    const cust = customers.find((c) => c.id === entry.customerId);
+    if (cust) {
+      const newDue = cust.dueBalance + entry.amount;
+      await supabase.from("customers").update({ due_balance: newDue }).eq("id", entry.customerId);
+      setCustomers((prev) => prev.map((c) => c.id === entry.customerId ? { ...c, dueBalance: newDue } : c));
+    }
+
+    setDueEntries((prev) => [{
+      id: data.id, customerId: data.customer_id, amount: Number(data.amount),
+      note: data.note, date: data.date,
+    }, ...prev]);
+  }, [customers]);
+
   const updateSettings = useCallback(async (s: PharmacySettings) => {
     const { error } = await supabase.from("pharmacy_settings").update({
       name: s.name, address: s.address, phone: s.phone,
@@ -296,10 +326,10 @@ export function PharmacyProvider({ children }: { children: ReactNode }) {
   return (
     <PharmacyContext.Provider
       value={{
-        medicines, customers, sales, payments, settings, loading,
+        medicines, customers, sales, payments, dueEntries, settings, loading,
         addMedicine, updateMedicine, deleteMedicine, importMedicines,
         addCustomer, updateCustomer, deleteCustomer,
-        addSale, addPayment, updateSettings,
+        addSale, addPayment, addDueEntry, updateSettings,
       }}
     >
       {children}
