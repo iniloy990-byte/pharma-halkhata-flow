@@ -154,10 +154,41 @@ function CustomerDetail({ customer, sales, payments, onBack, onPayment, onDelete
         <Button size="sm" variant={customer.dueBalance > 0 ? "due" : "outline"} onClick={onPayment} disabled={customer.dueBalance <= 0}>
           <Banknote className="w-4 h-4 mr-1.5" /> Receive Payment
         </Button>
+        <Button size="sm" variant="outline" onClick={() => setShowAddDue(true)}>
+          <PlusCircle className="w-4 h-4 mr-1.5" /> Add Old Due
+        </Button>
+        <Button size="sm" variant="outline" onClick={onEdit}>
+          <Edit className="w-4 h-4 mr-1.5" /> Edit
+        </Button>
         <Button size="sm" variant="destructive" onClick={onDelete}>
           <X className="w-4 h-4 mr-1.5" /> Delete
         </Button>
       </div>
+
+      {showAddDue && (
+        <div className="bg-card border border-primary/30 rounded-outer p-4 space-y-3">
+          <h3 className="font-semibold text-foreground">Add Old Due Amount</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Amount (৳)</label>
+              <Input type="number" value={dueAmt} onChange={(e) => setDueAmt(e.target.value)} placeholder="Enter due amount" />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Note</label>
+              <Input value={dueNote} onChange={(e) => setDueNote(e.target.value)} placeholder="e.g. Old balance from March" />
+            </div>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" size="sm" onClick={() => { setShowAddDue(false); setDueAmt(""); setDueNote(""); }}>Cancel</Button>
+            <Button size="sm" onClick={() => {
+              const amt = parseFloat(dueAmt);
+              if (!amt || amt <= 0) { toast.error("Enter a valid amount"); return; }
+              onAddDue(amt, dueNote);
+              setShowAddDue(false); setDueAmt(""); setDueNote("");
+            }}>Add Due</Button>
+          </div>
+        </div>
+      )}
 
       {showPaymentForm && (
         <div className="bg-card border border-primary/30 rounded-outer p-4 space-y-3">
