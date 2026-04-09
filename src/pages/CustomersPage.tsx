@@ -226,16 +226,19 @@ function CustomerForm({ customer, onSave, onCancel }: {
   const [phone, setPhone] = useState(customer?.phone || "");
   const [address, setAddress] = useState(customer?.address || "");
 
+  const [dueBalance, setDueBalance] = useState(String(customer?.dueBalance || 0));
+
   return (
-    <form onSubmit={(e) => { e.preventDefault(); if (!name.trim()) { toast.error("Name is required"); return; } onSave({ name, phone, address, dueBalance: customer?.dueBalance || 0 }); }} className="bg-card border border-border rounded-outer p-4 space-y-3">
+    <form onSubmit={(e) => { e.preventDefault(); if (!name.trim()) { toast.error("Name is required"); return; } onSave({ name, phone, address, dueBalance: parseFloat(dueBalance) || 0 }); }} className="bg-card border border-border rounded-outer p-4 space-y-3">
       <div className="flex items-center justify-between">
         <h3 className="font-semibold text-foreground">{customer ? "Edit Customer" : "Add Customer"}</h3>
         <Button type="button" variant="ghost" size="icon" onClick={onCancel}><X className="w-4 h-4" /></Button>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <div><label className="text-xs text-muted-foreground mb-1 block">Name *</label><Input value={name} onChange={(e) => setName(e.target.value)} required /></div>
         <div><label className="text-xs text-muted-foreground mb-1 block">Phone</label><Input value={phone} onChange={(e) => setPhone(e.target.value)} /></div>
         <div><label className="text-xs text-muted-foreground mb-1 block">Address</label><Input value={address} onChange={(e) => setAddress(e.target.value)} /></div>
+        <div><label className="text-xs text-muted-foreground mb-1 block">Old Due Balance (৳)</label><Input type="number" value={dueBalance} onChange={(e) => setDueBalance(e.target.value)} placeholder="0" min="0" /></div>
       </div>
       <div className="flex justify-end gap-2">
         <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
