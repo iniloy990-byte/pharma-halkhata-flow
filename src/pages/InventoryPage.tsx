@@ -293,7 +293,7 @@ function MedicineForm({ medicine, onSave, onCancel }: {
   const [form, setForm] = useState({
     name: medicine?.name || "",
     generic: medicine?.generic || "",
-    form: medicine?.form || "Tablet",
+    form: medicine?.form || "",
     manufacturer: medicine?.manufacturer || "",
     mrp: medicine?.mrp?.toString() || "",
     tp: medicine?.tp?.toString() || "",
