@@ -4,7 +4,7 @@ import { Customer, Payment } from "@/types/pharmacy";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Search, Plus, Users, ChevronRight, X, Banknote, ArrowLeft,
+  Search, Plus, Users, ChevronRight, X, Banknote, ArrowLeft, PlusCircle, Edit,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -32,6 +32,11 @@ export default function CustomersPage() {
         customer={cust} sales={custSales} payments={custPayments}
         onBack={() => setSelectedCustomer(null)}
         onPayment={() => setShowPaymentForm(true)}
+        onEdit={() => { setEditingCust(cust); setShowForm(true); }}
+        onAddDue={(amount, note) => {
+          updateCustomer({ ...cust, dueBalance: cust.dueBalance + amount });
+          toast.success(`৳${amount} due added to ${cust.name}`);
+        }}
         onDelete={() => {
           if (window.confirm(`Are you sure you want to delete "${cust.name}"?`)) {
             deleteCustomer(cust.id); setSelectedCustomer(null); toast.success("Customer deleted");
@@ -107,13 +112,17 @@ export default function CustomersPage() {
   );
 }
 
-function CustomerDetail({ customer, sales, payments, onBack, onPayment, onDelete, showPaymentForm, onSubmitPayment, onCancelPayment }: {
+function CustomerDetail({ customer, sales, payments, onBack, onPayment, onDelete, onAddDue, onEdit, showPaymentForm, onSubmitPayment, onCancelPayment }: {
   customer: Customer; sales: any[]; payments: Payment[]; onBack: () => void; onPayment: () => void; onDelete: () => void;
+  onAddDue: (amount: number, note: string) => void; onEdit: () => void;
   showPaymentForm: boolean; onSubmitPayment: (amount: number, method: string, note: string) => void; onCancelPayment: () => void;
 }) {
   const [payAmt, setPayAmt] = useState("");
   const [payMethod, setPayMethod] = useState("Cash");
   const [payNote, setPayNote] = useState("");
+  const [showAddDue, setShowAddDue] = useState(false);
+  const [dueAmt, setDueAmt] = useState("");
+  const [dueNote, setDueNote] = useState("");
 
   const allTransactions = [
     ...sales.map((s) => ({ type: "sale" as const, date: s.date, amount: s.total, label: s.invoiceNo, method: s.paymentMethod })),
@@ -145,10 +154,41 @@ function CustomerDetail({ customer, sales, payments, onBack, onPayment, onDelete
         <Button size="sm" variant={customer.dueBalance > 0 ? "due" : "outline"} onClick={onPayment} disabled={customer.dueBalance <= 0}>
           <Banknote className="w-4 h-4 mr-1.5" /> Receive Payment
         </Button>
+        <Button size="sm" variant="outline" onClick={() => setShowAddDue(true)}>
+          <PlusCircle className="w-4 h-4 mr-1.5" /> Add Old Due
+        </Button>
+        <Button size="sm" variant="outline" onClick={onEdit}>
+          <Edit className="w-4 h-4 mr-1.5" /> Edit
+        </Button>
         <Button size="sm" variant="destructive" onClick={onDelete}>
           <X className="w-4 h-4 mr-1.5" /> Delete
         </Button>
       </div>
+
+      {showAddDue && (
+        <div className="bg-card border border-primary/30 rounded-outer p-4 space-y-3">
+          <h3 className="font-semibold text-foreground">Add Old Due Amount</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Amount (৳)</label>
+              <Input type="number" value={dueAmt} onChange={(e) => setDueAmt(e.target.value)} placeholder="Enter due amount" />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Note</label>
+              <Input value={dueNote} onChange={(e) => setDueNote(e.target.value)} placeholder="e.g. Old balance from March" />
+            </div>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" size="sm" onClick={() => { setShowAddDue(false); setDueAmt(""); setDueNote(""); }}>Cancel</Button>
+            <Button size="sm" onClick={() => {
+              const amt = parseFloat(dueAmt);
+              if (!amt || amt <= 0) { toast.error("Enter a valid amount"); return; }
+              onAddDue(amt, dueNote);
+              setShowAddDue(false); setDueAmt(""); setDueNote("");
+            }}>Add Due</Button>
+          </div>
+        </div>
+      )}
 
       {showPaymentForm && (
         <div className="bg-card border border-primary/30 rounded-outer p-4 space-y-3">
@@ -226,16 +266,19 @@ function CustomerForm({ customer, onSave, onCancel }: {
   const [phone, setPhone] = useState(customer?.phone || "");
   const [address, setAddress] = useState(customer?.address || "");
 
+  const [dueBalance, setDueBalance] = useState(String(customer?.dueBalance || 0));
+
   return (
-    <form onSubmit={(e) => { e.preventDefault(); if (!name.trim()) { toast.error("Name is required"); return; } onSave({ name, phone, address, dueBalance: customer?.dueBalance || 0 }); }} className="bg-card border border-border rounded-outer p-4 space-y-3">
+    <form onSubmit={(e) => { e.preventDefault(); if (!name.trim()) { toast.error("Name is required"); return; } onSave({ name, phone, address, dueBalance: parseFloat(dueBalance) || 0 }); }} className="bg-card border border-border rounded-outer p-4 space-y-3">
       <div className="flex items-center justify-between">
         <h3 className="font-semibold text-foreground">{customer ? "Edit Customer" : "Add Customer"}</h3>
         <Button type="button" variant="ghost" size="icon" onClick={onCancel}><X className="w-4 h-4" /></Button>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <div><label className="text-xs text-muted-foreground mb-1 block">Name *</label><Input value={name} onChange={(e) => setName(e.target.value)} required /></div>
         <div><label className="text-xs text-muted-foreground mb-1 block">Phone</label><Input value={phone} onChange={(e) => setPhone(e.target.value)} /></div>
         <div><label className="text-xs text-muted-foreground mb-1 block">Address</label><Input value={address} onChange={(e) => setAddress(e.target.value)} /></div>
+        <div><label className="text-xs text-muted-foreground mb-1 block">Old Due Balance (৳)</label><Input type="number" value={dueBalance} onChange={(e) => setDueBalance(e.target.value)} placeholder="0" min="0" /></div>
       </div>
       <div className="flex justify-end gap-2">
         <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
