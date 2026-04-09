@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { usePharmacy } from "@/context/PharmacyContext";
-import { Customer, Payment } from "@/types/pharmacy";
+import { Customer, Payment, DueEntry } from "@/types/pharmacy";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -9,7 +9,7 @@ import {
 import { toast } from "sonner";
 
 export default function CustomersPage() {
-  const { customers, sales, payments, addCustomer, updateCustomer, deleteCustomer, addPayment } = usePharmacy();
+  const { customers, sales, payments, dueEntries, addCustomer, updateCustomer, deleteCustomer, addPayment, addDueEntry } = usePharmacy();
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editingCust, setEditingCust] = useState<Customer | null>(null);
@@ -27,14 +27,15 @@ export default function CustomersPage() {
     const cust = customers.find((c) => c.id === selectedCustomer.id) || selectedCustomer;
     const custSales = sales.filter((s) => s.customerId === cust.id);
     const custPayments = payments.filter((p) => p.customerId === cust.id);
+    const custDueEntries = dueEntries.filter((d) => d.customerId === cust.id);
     return (
       <CustomerDetail
-        customer={cust} sales={custSales} payments={custPayments}
+        customer={cust} sales={custSales} payments={custPayments} dueEntries={custDueEntries}
         onBack={() => setSelectedCustomer(null)}
         onPayment={() => setShowPaymentForm(true)}
         onEdit={() => { setEditingCust(cust); setShowForm(true); }}
         onAddDue={(amount, note) => {
-          updateCustomer({ ...cust, dueBalance: cust.dueBalance + amount });
+          addDueEntry({ customerId: cust.id, amount, note, date: new Date().toISOString() });
           toast.success(`৳${amount} due added to ${cust.name}`);
         }}
         onDelete={() => {
@@ -112,8 +113,8 @@ export default function CustomersPage() {
   );
 }
 
-function CustomerDetail({ customer, sales, payments, onBack, onPayment, onDelete, onAddDue, onEdit, showPaymentForm, onSubmitPayment, onCancelPayment }: {
-  customer: Customer; sales: any[]; payments: Payment[]; onBack: () => void; onPayment: () => void; onDelete: () => void;
+function CustomerDetail({ customer, sales, payments, dueEntries, onBack, onPayment, onDelete, onAddDue, onEdit, showPaymentForm, onSubmitPayment, onCancelPayment }: {
+  customer: Customer; sales: any[]; payments: Payment[]; dueEntries: DueEntry[]; onBack: () => void; onPayment: () => void; onDelete: () => void;
   onAddDue: (amount: number, note: string) => void; onEdit: () => void;
   showPaymentForm: boolean; onSubmitPayment: (amount: number, method: string, note: string) => void; onCancelPayment: () => void;
 }) {
@@ -127,6 +128,7 @@ function CustomerDetail({ customer, sales, payments, onBack, onPayment, onDelete
   const allTransactions = [
     ...sales.map((s) => ({ type: "sale" as const, date: s.date, amount: s.total, label: s.invoiceNo, method: s.paymentMethod })),
     ...payments.map((p) => ({ type: "payment" as const, date: p.date, amount: p.amount, label: "Payment", method: p.method })),
+    ...dueEntries.map((d) => ({ type: "due" as const, date: d.date, amount: d.amount, label: d.note || "Old Due Added", method: "" })),
   ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   return (
