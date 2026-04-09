@@ -235,18 +235,22 @@ function CustomerDetail({ customer, sales, payments, dueEntries, onBack, onPayme
                   <div className="w-7 h-7 md:w-8 md:h-8 rounded-inner bg-accent-expiry/10 flex items-center justify-center">
                     <span className="text-[10px] md:text-xs font-bold text-accent-expiry">S</span>
                   </div>
-                ) : (
+                ) : t.type === "payment" ? (
                   <div className="w-7 h-7 md:w-8 md:h-8 rounded-inner bg-accent-success/10 flex items-center justify-center">
                     <span className="text-[10px] md:text-xs font-bold text-accent-success">P</span>
+                  </div>
+                ) : (
+                  <div className="w-7 h-7 md:w-8 md:h-8 rounded-inner bg-amber-500/10 flex items-center justify-center">
+                    <span className="text-[10px] md:text-xs font-bold text-amber-600">D</span>
                   </div>
                 )}
                 <div>
                   <p className="text-xs md:text-sm font-medium text-foreground">{t.label}</p>
-                  <p className="text-[10px] md:text-xs text-muted-foreground">{new Date(t.date).toLocaleDateString()} &middot; {t.method}</p>
+                  <p className="text-[10px] md:text-xs text-muted-foreground">{new Date(t.date).toLocaleDateString()} {t.method ? `· ${t.method}` : ""}</p>
                 </div>
               </div>
-              <span className={`font-mono-data font-semibold text-xs md:text-sm ${t.type === "sale" ? "text-accent-expiry" : "text-accent-success"}`}>
-                {t.type === "sale" ? "-" : "+"}৳{t.amount.toFixed(2)}
+              <span className={`font-mono-data font-semibold text-xs md:text-sm ${t.type === "sale" ? "text-accent-expiry" : t.type === "payment" ? "text-accent-success" : "text-amber-600"}`}>
+                {t.type === "sale" ? "-" : t.type === "payment" ? "+" : "+"}৳{t.amount.toFixed(2)}
               </span>
             </div>
           ))}
