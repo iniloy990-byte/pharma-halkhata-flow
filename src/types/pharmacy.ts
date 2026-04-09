@@ -55,6 +55,14 @@ export interface Payment {
   note: string;
 }
 
+export interface DueEntry {
+  id: string;
+  customerId: string;
+  amount: number;
+  note: string;
+  date: string;
+}
+
 export interface PharmacySettings {
   name: string;
   address: string;

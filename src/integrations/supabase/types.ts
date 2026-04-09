@@ -41,6 +41,41 @@ export type Database = {
         }
         Relationships: []
       }
+      due_entries: {
+        Row: {
+          amount: number
+          created_at: string
+          customer_id: string
+          date: string
+          id: string
+          note: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          customer_id: string
+          date?: string
+          id?: string
+          note?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          customer_id?: string
+          date?: string
+          id?: string
+          note?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "due_entries_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       medicines: {
         Row: {
           batch: string

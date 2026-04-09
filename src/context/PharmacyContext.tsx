@@ -1,12 +1,13 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Medicine, Customer, Sale, Payment, PharmacySettings } from "@/types/pharmacy";
+import { Medicine, Customer, Sale, Payment, DueEntry, PharmacySettings } from "@/types/pharmacy";
 
 interface PharmacyContextType {
   medicines: Medicine[];
   customers: Customer[];
   sales: Sale[];
   payments: Payment[];
+  dueEntries: DueEntry[];
   settings: PharmacySettings;
   loading: boolean;
   addMedicine: (med: Omit<Medicine, "id">) => Promise<void>;
@@ -18,6 +19,7 @@ interface PharmacyContextType {
   deleteCustomer: (id: string) => Promise<void>;
   addSale: (sale: Omit<Sale, "id" | "invoiceNo">) => Promise<void>;
   addPayment: (payment: Omit<Payment, "id">) => Promise<void>;
+  addDueEntry: (entry: Omit<DueEntry, "id">) => Promise<void>;
   updateSettings: (s: PharmacySettings) => Promise<void>;
 }
 
@@ -37,6 +39,7 @@ export function PharmacyProvider({ children }: { children: ReactNode }) {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [sales, setSales] = useState<Sale[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
+  const [dueEntries, setDueEntries] = useState<DueEntry[]>([]);
   const [settings, setSettings] = useState<PharmacySettings>(defaultSettings);
   const [loading, setLoading] = useState(true);
 
@@ -44,12 +47,13 @@ export function PharmacyProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     async function fetchAll() {
       try {
-        const [medsRes, custRes, salesRes, paymentsRes, settingsRes] = await Promise.all([
+        const [medsRes, custRes, salesRes, paymentsRes, settingsRes, dueRes] = await Promise.all([
           supabase.from("medicines").select("*").order("name"),
           supabase.from("customers").select("*").order("name"),
           supabase.from("sales").select("*").order("date", { ascending: false }),
           supabase.from("payments").select("*").order("date", { ascending: false }),
           supabase.from("pharmacy_settings").select("*").limit(1),
+          supabase.from("due_entries").select("*").order("date", { ascending: false }),
         ]);
 
         if (medsRes.data) {
@@ -99,6 +103,13 @@ export function PharmacyProvider({ children }: { children: ReactNode }) {
           setPayments(paymentsRes.data.map((p: any) => ({
             id: p.id, customerId: p.customer_id, amount: Number(p.amount),
             method: p.method, date: p.date, note: p.note,
+          })));
+        }
+
+        if (dueRes.data) {
+          setDueEntries(dueRes.data.map((d: any) => ({
+            id: d.id, customerId: d.customer_id, amount: Number(d.amount),
+            note: d.note, date: d.date,
           })));
         }
 
@@ -281,6 +292,27 @@ export function PharmacyProvider({ children }: { children: ReactNode }) {
     );
   }, [customers]);
 
+  const addDueEntry = useCallback(async (entry: Omit<DueEntry, "id">) => {
+    const { data, error } = await supabase.from("due_entries").insert({
+      customer_id: entry.customerId, amount: entry.amount,
+      note: entry.note, date: entry.date,
+    }).select().single();
+    if (error) { console.error(error); return; }
+
+    // Update customer due balance
+    const cust = customers.find((c) => c.id === entry.customerId);
+    if (cust) {
+      const newDue = cust.dueBalance + entry.amount;
+      await supabase.from("customers").update({ due_balance: newDue }).eq("id", entry.customerId);
+      setCustomers((prev) => prev.map((c) => c.id === entry.customerId ? { ...c, dueBalance: newDue } : c));
+    }
+
+    setDueEntries((prev) => [{
+      id: data.id, customerId: data.customer_id, amount: Number(data.amount),
+      note: data.note, date: data.date,
+    }, ...prev]);
+  }, [customers]);
+
   const updateSettings = useCallback(async (s: PharmacySettings) => {
     const { error } = await supabase.from("pharmacy_settings").update({
       name: s.name, address: s.address, phone: s.phone,
@@ -293,10 +325,10 @@ export function PharmacyProvider({ children }: { children: ReactNode }) {
   return (
     <PharmacyContext.Provider
       value={{
-        medicines, customers, sales, payments, settings, loading,
+        medicines, customers, sales, payments, dueEntries, settings, loading,
         addMedicine, updateMedicine, deleteMedicine, importMedicines,
         addCustomer, updateCustomer, deleteCustomer,
-        addSale, addPayment, updateSettings,
+        addSale, addPayment, addDueEntry, updateSettings,
       }}
     >
       {children}
