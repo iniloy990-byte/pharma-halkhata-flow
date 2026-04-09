@@ -112,7 +112,6 @@ export function PharmacyProvider({ children }: { children: ReactNode }) {
             note: d.note, date: d.date,
           })));
         }
-        }
 
         if (settingsRes.data && settingsRes.data.length > 0) {
           const s = settingsRes.data[0] as any;
