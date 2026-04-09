@@ -4,7 +4,7 @@ import { Customer, Payment } from "@/types/pharmacy";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Search, Plus, Users, ChevronRight, X, Banknote, ArrowLeft,
+  Search, Plus, Users, ChevronRight, X, Banknote, ArrowLeft, PlusCircle, Edit,
 } from "lucide-react";
 import { toast } from "sonner";
 
