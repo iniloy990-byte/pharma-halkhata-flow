@@ -107,13 +107,17 @@ export default function CustomersPage() {
   );
 }
 
-function CustomerDetail({ customer, sales, payments, onBack, onPayment, onDelete, showPaymentForm, onSubmitPayment, onCancelPayment }: {
+function CustomerDetail({ customer, sales, payments, onBack, onPayment, onDelete, onAddDue, onEdit, showPaymentForm, onSubmitPayment, onCancelPayment }: {
   customer: Customer; sales: any[]; payments: Payment[]; onBack: () => void; onPayment: () => void; onDelete: () => void;
+  onAddDue: (amount: number, note: string) => void; onEdit: () => void;
   showPaymentForm: boolean; onSubmitPayment: (amount: number, method: string, note: string) => void; onCancelPayment: () => void;
 }) {
   const [payAmt, setPayAmt] = useState("");
   const [payMethod, setPayMethod] = useState("Cash");
   const [payNote, setPayNote] = useState("");
+  const [showAddDue, setShowAddDue] = useState(false);
+  const [dueAmt, setDueAmt] = useState("");
+  const [dueNote, setDueNote] = useState("");
 
   const allTransactions = [
     ...sales.map((s) => ({ type: "sale" as const, date: s.date, amount: s.total, label: s.invoiceNo, method: s.paymentMethod })),
