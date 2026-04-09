@@ -324,7 +324,7 @@ function MedicineForm({ medicine, onSave, onCancel }: {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
         <div className="sm:col-span-2"><label className="text-xs text-muted-foreground mb-1 block">Brand Name *</label><Input value={form.name} onChange={(e) => set("name", e.target.value)} required /></div>
         <div className="sm:col-span-2"><label className="text-xs text-muted-foreground mb-1 block">Generic Name *</label><Input value={form.generic} onChange={(e) => set("generic", e.target.value)} required /></div>
-        <div><label className="text-xs text-muted-foreground mb-1 block">Form</label>
+        <div><label className="text-xs text-muted-foreground mb-1 block">Form <span className="opacity-50">(Optional)</span></label>
           <Select value={form.form} onValueChange={(val) => set("form", val)}>
             <SelectTrigger><SelectValue placeholder="Select form" /></SelectTrigger>
             <SelectContent>
@@ -334,11 +334,11 @@ function MedicineForm({ medicine, onSave, onCancel }: {
             </SelectContent>
           </Select>
         </div>
-        <div><label className="text-xs text-muted-foreground mb-1 block">Manufacturer</label><Input value={form.manufacturer} onChange={(e) => set("manufacturer", e.target.value)} /></div>
+        <div><label className="text-xs text-muted-foreground mb-1 block">Manufacturer <span className="opacity-50">(Optional)</span></label><Input value={form.manufacturer} onChange={(e) => set("manufacturer", e.target.value)} /></div>
         <div><label className="text-xs text-muted-foreground mb-1 block">MRP (৳)</label><Input type="number" step="0.01" value={form.mrp} onChange={(e) => set("mrp", e.target.value)} /></div>
-        <div><label className="text-xs text-muted-foreground mb-1 block">TP (৳)</label><Input type="number" step="0.01" value={form.tp} onChange={(e) => set("tp", e.target.value)} /></div>
+        <div><label className="text-xs text-muted-foreground mb-1 block">TP (৳) <span className="opacity-50">(Optional)</span></label><Input type="number" step="0.01" value={form.tp} onChange={(e) => set("tp", e.target.value)} /></div>
         <div><label className="text-xs text-muted-foreground mb-1 block">Stock</label><Input type="number" value={form.stock} onChange={(e) => set("stock", e.target.value)} /></div>
-        <div><label className="text-xs text-muted-foreground mb-1 block">Batch No.</label><Input value={form.batch} onChange={(e) => set("batch", e.target.value)} /></div>
+        <div><label className="text-xs text-muted-foreground mb-1 block">Batch No. <span className="opacity-50">(Optional)</span></label><Input value={form.batch} onChange={(e) => set("batch", e.target.value)} /></div>
         <div><label className="text-xs text-muted-foreground mb-1 block">Expiry (YYYY-MM)</label><Input type="month" value={form.expiry} onChange={(e) => set("expiry", e.target.value)} /></div>
         <div><label className="text-xs text-muted-foreground mb-1 block">Min Stock Alert</label><Input type="number" value={form.minStock} onChange={(e) => set("minStock", e.target.value)} /></div>
       </div>
