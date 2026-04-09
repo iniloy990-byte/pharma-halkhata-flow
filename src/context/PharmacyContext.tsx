@@ -7,6 +7,7 @@ interface PharmacyContextType {
   customers: Customer[];
   sales: Sale[];
   payments: Payment[];
+  dueEntries: DueEntry[];
   settings: PharmacySettings;
   loading: boolean;
   addMedicine: (med: Omit<Medicine, "id">) => Promise<void>;
@@ -18,6 +19,7 @@ interface PharmacyContextType {
   deleteCustomer: (id: string) => Promise<void>;
   addSale: (sale: Omit<Sale, "id" | "invoiceNo">) => Promise<void>;
   addPayment: (payment: Omit<Payment, "id">) => Promise<void>;
+  addDueEntry: (entry: Omit<DueEntry, "id">) => Promise<void>;
   updateSettings: (s: PharmacySettings) => Promise<void>;
 }
 
@@ -37,6 +39,7 @@ export function PharmacyProvider({ children }: { children: ReactNode }) {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [sales, setSales] = useState<Sale[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
+  const [dueEntries, setDueEntries] = useState<DueEntry[]>([]);
   const [settings, setSettings] = useState<PharmacySettings>(defaultSettings);
   const [loading, setLoading] = useState(true);
 
