@@ -71,3 +71,33 @@ export interface PharmacySettings {
   currency: string;
   receiptWidth: "80mm" | "58mm";
 }
+
+// Company management types
+export interface Company {
+  id: string;
+  name: string;
+  address: string;
+  phone: string;
+  contactPerson: string;
+  dueBalance: number;
+}
+
+export interface CompanyPurchase {
+  id: string;
+  companyId: string;
+  invoiceNo: string;
+  date: string;
+  totalAmount: number;
+  paidAmount: number;
+  dueAmount: number;
+  note: string;
+}
+
+export interface CompanyPayment {
+  id: string;
+  companyId: string;
+  amount: number;
+  method: string;
+  date: string;
+  note: string;
+}
