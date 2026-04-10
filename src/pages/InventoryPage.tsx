@@ -69,18 +69,18 @@ export default function InventoryPage() {
         const text = ev.target?.result as string;
         const lines = text.split("\n").filter((l) => l.trim());
         const header = lines[0].toLowerCase();
-        if (!header.includes("name") || !header.includes("generic")) {
-          toast.error("Invalid CSV format. Required columns: Name, Generic, Form, Manufacturer, MRP, TP, Stock, Batch, Expiry, MinStock");
+        if (!header.includes("name")) {
+          toast.error("Invalid CSV format. Required column: Name");
           return;
         }
         const meds: Omit<Medicine, "id">[] = [];
         for (let i = 1; i < lines.length; i++) {
           const parts = parseCSVLine(lines[i]);
-          if (parts.length < 2) continue;
+          if (parts.length < 1) continue;
           meds.push({
             name: parts[0]?.trim() || "Unknown",
-            generic: parts[1]?.trim() || "Unknown",
-            form: parts[2]?.trim() || "Tablet",
+            generic: parts[1]?.trim() || "",
+            form: parts[2]?.trim() || "",
             manufacturer: parts[3]?.trim() || "",
             mrp: parseFloat(parts[4]) || 0,
             tp: parseFloat(parts[5]) || 0,

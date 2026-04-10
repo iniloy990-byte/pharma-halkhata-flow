@@ -33,7 +33,7 @@ export default function CustomersPage() {
         customer={cust} sales={custSales} payments={custPayments} dueEntries={custDueEntries}
         onBack={() => setSelectedCustomer(null)}
         onPayment={() => setShowPaymentForm(true)}
-        onEdit={() => { setEditingCust(cust); setShowForm(true); }}
+        onEdit={() => { setEditingCust(cust); setSelectedCustomer(null); setShowForm(true); }}
         onAddDue={(amount, note) => {
           addDueEntry({ customerId: cust.id, amount, note, date: new Date().toISOString() });
           toast.success(`৳${amount} due added to ${cust.name}`);
@@ -74,7 +74,12 @@ export default function CustomersPage() {
         <CustomerForm
           customer={editingCust}
           onSave={(cust) => {
-            if (editingCust) { updateCustomer({ ...cust, id: editingCust.id }); toast.success("Customer updated"); }
+            if (editingCust) {
+              const updated = { ...cust, id: editingCust.id };
+              updateCustomer(updated);
+              setSelectedCustomer(updated as Customer);
+              toast.success("Customer updated");
+            }
             else { addCustomer(cust); toast.success("Customer added"); }
             setShowForm(false); setEditingCust(null);
           }}
