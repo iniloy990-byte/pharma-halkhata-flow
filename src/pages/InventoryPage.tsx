@@ -78,9 +78,9 @@ export default function InventoryPage() {
           const parts = parseCSVLine(lines[i]);
           if (parts.length < 2) continue;
           meds.push({
-            name: parts[0]?.trim() || "Unknown",
-            generic: parts[1]?.trim() || "Unknown",
-            form: parts[2]?.trim() || "Tablet",
+81:             name: parts[0]?.trim() || "Unknown",
+            generic: parts[1]?.trim() || "",
+            form: parts[2]?.trim() || "",
             manufacturer: parts[3]?.trim() || "",
             mrp: parseFloat(parts[4]) || 0,
             tp: parseFloat(parts[5]) || 0,
