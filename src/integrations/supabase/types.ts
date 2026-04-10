@@ -14,6 +14,118 @@ export type Database = {
   }
   public: {
     Tables: {
+      companies: {
+        Row: {
+          address: string
+          contact_person: string
+          created_at: string
+          due_balance: number
+          id: string
+          name: string
+          phone: string
+        }
+        Insert: {
+          address?: string
+          contact_person?: string
+          created_at?: string
+          due_balance?: number
+          id?: string
+          name: string
+          phone?: string
+        }
+        Update: {
+          address?: string
+          contact_person?: string
+          created_at?: string
+          due_balance?: number
+          id?: string
+          name?: string
+          phone?: string
+        }
+        Relationships: []
+      }
+      company_payments: {
+        Row: {
+          amount: number
+          company_id: string
+          created_at: string
+          date: string
+          id: string
+          method: string
+          note: string
+        }
+        Insert: {
+          amount?: number
+          company_id: string
+          created_at?: string
+          date?: string
+          id?: string
+          method?: string
+          note?: string
+        }
+        Update: {
+          amount?: number
+          company_id?: string
+          created_at?: string
+          date?: string
+          id?: string
+          method?: string
+          note?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_payments_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_purchases: {
+        Row: {
+          company_id: string
+          created_at: string
+          date: string
+          due_amount: number
+          id: string
+          invoice_no: string
+          note: string
+          paid_amount: number
+          total_amount: number
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          date?: string
+          due_amount?: number
+          id?: string
+          invoice_no?: string
+          note?: string
+          paid_amount?: number
+          total_amount?: number
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          date?: string
+          due_amount?: number
+          id?: string
+          invoice_no?: string
+          note?: string
+          paid_amount?: number
+          total_amount?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_purchases_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customers: {
         Row: {
           address: string
