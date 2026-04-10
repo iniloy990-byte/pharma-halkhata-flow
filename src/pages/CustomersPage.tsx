@@ -74,7 +74,12 @@ export default function CustomersPage() {
         <CustomerForm
           customer={editingCust}
           onSave={(cust) => {
-            if (editingCust) { updateCustomer({ ...cust, id: editingCust.id }); toast.success("Customer updated"); }
+            if (editingCust) {
+              const updated = { ...cust, id: editingCust.id };
+              updateCustomer(updated);
+              setSelectedCustomer(updated as Customer);
+              toast.success("Customer updated");
+            }
             else { addCustomer(cust); toast.success("Customer added"); }
             setShowForm(false); setEditingCust(null);
           }}
