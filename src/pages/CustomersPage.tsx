@@ -33,7 +33,7 @@ export default function CustomersPage() {
         customer={cust} sales={custSales} payments={custPayments} dueEntries={custDueEntries}
         onBack={() => setSelectedCustomer(null)}
         onPayment={() => setShowPaymentForm(true)}
-        onEdit={() => { setEditingCust(cust); setShowForm(true); }}
+        onEdit={() => { setEditingCust(cust); setSelectedCustomer(null); setShowForm(true); }}
         onAddDue={(amount, note) => {
           addDueEntry({ customerId: cust.id, amount, note, date: new Date().toISOString() });
           toast.success(`৳${amount} due added to ${cust.name}`);
