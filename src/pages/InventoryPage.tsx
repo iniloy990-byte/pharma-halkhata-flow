@@ -69,8 +69,8 @@ export default function InventoryPage() {
         const text = ev.target?.result as string;
         const lines = text.split("\n").filter((l) => l.trim());
         const header = lines[0].toLowerCase();
-        if (!header.includes("name") || !header.includes("generic")) {
-          toast.error("Invalid CSV format. Required columns: Name, Generic, Form, Manufacturer, MRP, TP, Stock, Batch, Expiry, MinStock");
+        if (!header.includes("name")) {
+          toast.error("Invalid CSV format. Required column: Name");
           return;
         }
         const meds: Omit<Medicine, "id">[] = [];
