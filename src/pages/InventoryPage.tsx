@@ -76,9 +76,9 @@ export default function InventoryPage() {
         const meds: Omit<Medicine, "id">[] = [];
         for (let i = 1; i < lines.length; i++) {
           const parts = parseCSVLine(lines[i]);
-          if (parts.length < 2) continue;
+          if (parts.length < 1) continue;
           meds.push({
-81:             name: parts[0]?.trim() || "Unknown",
+            name: parts[0]?.trim() || "Unknown",
             generic: parts[1]?.trim() || "",
             form: parts[2]?.trim() || "",
             manufacturer: parts[3]?.trim() || "",
