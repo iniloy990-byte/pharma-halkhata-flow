@@ -1,6 +1,6 @@
 import { NavLink, useLocation } from "react-router-dom";
 import {
-  LayoutDashboard, ShoppingCart, Package, AlertTriangle, Users, FileText, Settings, Pill, X,
+  LayoutDashboard, ShoppingCart, Package, AlertTriangle, Users, FileText, Settings, Pill, X, Building2,
 } from "lucide-react";
 
 const navItems = [
@@ -9,6 +9,7 @@ const navItems = [
   { to: "/inventory", icon: Package, label: "Inventory" },
   { to: "/expiry", icon: AlertTriangle, label: "Expiry Monitor" },
   { to: "/customers", icon: Users, label: "Customers" },
+  { to: "/companies", icon: Building2, label: "Companies" },
   { to: "/reports", icon: FileText, label: "Reports" },
   { to: "/settings", icon: Settings, label: "Settings" },
 ];

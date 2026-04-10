@@ -4,12 +4,14 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { PharmacyProvider } from "@/context/PharmacyContext";
+import { CompanyProvider } from "@/context/CompanyContext";
 import AppLayout from "@/components/AppLayout";
 import DashboardPage from "@/pages/DashboardPage";
 import POSScreen from "@/pages/POSScreen";
 import InventoryPage from "@/pages/InventoryPage";
 import ExpiryPage from "@/pages/ExpiryPage";
 import CustomersPage from "@/pages/CustomersPage";
+import CompaniesPage from "@/pages/CompaniesPage";
 import ReportsPage from "@/pages/ReportsPage";
 import SettingsPage from "@/pages/SettingsPage";
 import NotFound from "./pages/NotFound.tsx";
@@ -20,20 +22,23 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <PharmacyProvider>
-        <Toaster />
-        <Sonner />
-        <HashRouter>
-          <Routes>
-            <Route path="/" element={<AppLayout><DashboardPage /></AppLayout>} />
-            <Route path="/pos" element={<AppLayout><POSScreen /></AppLayout>} />
-            <Route path="/inventory" element={<AppLayout><InventoryPage /></AppLayout>} />
-            <Route path="/expiry" element={<AppLayout><ExpiryPage /></AppLayout>} />
-            <Route path="/customers" element={<AppLayout><CustomersPage /></AppLayout>} />
-            <Route path="/reports" element={<AppLayout><ReportsPage /></AppLayout>} />
-            <Route path="/settings" element={<AppLayout><SettingsPage /></AppLayout>} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </HashRouter>
+        <CompanyProvider>
+          <Toaster />
+          <Sonner />
+          <HashRouter>
+            <Routes>
+              <Route path="/" element={<AppLayout><DashboardPage /></AppLayout>} />
+              <Route path="/pos" element={<AppLayout><POSScreen /></AppLayout>} />
+              <Route path="/inventory" element={<AppLayout><InventoryPage /></AppLayout>} />
+              <Route path="/expiry" element={<AppLayout><ExpiryPage /></AppLayout>} />
+              <Route path="/customers" element={<AppLayout><CustomersPage /></AppLayout>} />
+              <Route path="/companies" element={<AppLayout><CompaniesPage /></AppLayout>} />
+              <Route path="/reports" element={<AppLayout><ReportsPage /></AppLayout>} />
+              <Route path="/settings" element={<AppLayout><SettingsPage /></AppLayout>} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </HashRouter>
+        </CompanyProvider>
       </PharmacyProvider>
     </TooltipProvider>
   </QueryClientProvider>
