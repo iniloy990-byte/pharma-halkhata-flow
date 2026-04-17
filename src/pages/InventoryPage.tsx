@@ -8,9 +8,10 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import {
-  Search, Plus, Upload, Download, Pencil, Trash2, X, Package,
+  Search, Plus, Upload, Download, Pencil, Trash2, X, Package, ScanLine,
 } from "lucide-react";
 import { toast } from "sonner";
+import ScanInvoiceDialog from "@/components/ScanInvoiceDialog";
 
 export default function InventoryPage() {
   const { medicines, addMedicine, updateMedicine, deleteMedicine, importMedicines } = usePharmacy();
@@ -19,6 +20,7 @@ export default function InventoryPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingMed, setEditingMed] = useState<Medicine | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const [showScan, setShowScan] = useState(false);
 
   const filtered = medicines.filter((m) => {
     const q = search.toLowerCase();
@@ -118,6 +120,9 @@ export default function InventoryPage() {
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={handleImport} />
+          <Button variant="outline" size="sm" onClick={() => setShowScan(true)}>
+            <ScanLine className="w-4 h-4 mr-1.5" /> Scan Invoice
+          </Button>
           <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()}>
             <Upload className="w-4 h-4 mr-1.5" /> Import
           </Button>
@@ -129,6 +134,8 @@ export default function InventoryPage() {
           </Button>
         </div>
       </div>
+
+      <ScanInvoiceDialog open={showScan} onOpenChange={setShowScan} />
 
       <div className="relative max-w-md">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
