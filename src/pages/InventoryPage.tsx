@@ -286,6 +286,9 @@ export default function InventoryPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border bg-muted/50">
+                <th className="px-4 py-3 w-10">
+                  <Checkbox checked={allFilteredSelected} onCheckedChange={toggleAll} />
+                </th>
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground">Medicine</th>
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground">Form</th>
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground">Manufacturer</th>
