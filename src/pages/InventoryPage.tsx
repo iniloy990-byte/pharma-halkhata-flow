@@ -26,11 +26,43 @@ export default function InventoryPage() {
   const [editingMed, setEditingMed] = useState<Medicine | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const [showScan, setShowScan] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [confirmBulk, setConfirmBulk] = useState(false);
 
   const filtered = medicines.filter((m) => {
     const q = search.toLowerCase();
     return !q || m.name.toLowerCase().includes(q) || m.generic.toLowerCase().includes(q) || m.manufacturer.toLowerCase().includes(q) || m.batch.toLowerCase().includes(q);
   });
+
+  const allFilteredSelected = useMemo(
+    () => filtered.length > 0 && filtered.every((m) => selected.has(m.id)),
+    [filtered, selected]
+  );
+
+  const toggleOne = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleAll = () => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (allFilteredSelected) filtered.forEach((m) => next.delete(m.id));
+      else filtered.forEach((m) => next.add(m.id));
+      return next;
+    });
+  };
+
+  const handleBulkDelete = async () => {
+    const ids = Array.from(selected);
+    for (const id of ids) await deleteMedicine(id);
+    toast.success(`${ids.length} medicine(s) deleted`);
+    setSelected(new Set());
+    setConfirmBulk(false);
+  };
 
   const handleExport = () => {
     const headers = "Name,Generic,Form,Manufacturer,MRP,TP,Stock,Batch,Expiry,MinStock";
