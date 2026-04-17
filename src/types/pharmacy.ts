@@ -70,6 +70,7 @@ export interface PharmacySettings {
   vatRate: number;
   currency: string;
   receiptWidth: "80mm" | "58mm";
+  logoUrl: string;
 }
 
 // Company management types

@@ -41,6 +41,13 @@ export default function InvoicePrint({ sale, settings, onClose }: InvoicePrintPr
         <div className="p-6 print:p-4" style={{ width: settings.receiptWidth === "58mm" ? "58mm" : "80mm", margin: "0 auto" }}>
           {/* Header */}
           <div className="text-center border-b border-dashed border-border pb-3 mb-3">
+            {settings.logoUrl && (
+              <img
+                src={settings.logoUrl}
+                alt={`${settings.name} logo`}
+                className="mx-auto mb-2 max-h-16 w-auto object-contain"
+              />
+            )}
             <h1 className="text-base font-bold text-foreground">{settings.name}</h1>
             <p className="text-[10px] text-muted-foreground mt-0.5">{settings.address}</p>
             <p className="text-[10px] text-muted-foreground">Phone: {settings.phone}</p>
