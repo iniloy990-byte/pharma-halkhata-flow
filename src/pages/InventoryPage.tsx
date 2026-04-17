@@ -1,12 +1,17 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import { usePharmacy } from "@/context/PharmacyContext";
 
 import { Medicine } from "@/types/pharmacy";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   Search, Plus, Upload, Download, Pencil, Trash2, X, Package, ScanLine,
 } from "lucide-react";
