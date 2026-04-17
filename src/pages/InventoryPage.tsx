@@ -235,8 +235,13 @@ export default function InventoryPage() {
           const isExpSoon = !isExpired && (expDate.getTime() - Date.now()) / 86400000 < 90;
           return (
             <div key={m.id} className="bg-card border border-border rounded-outer p-3 space-y-2">
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
+              <div className="flex items-start gap-2">
+                <Checkbox
+                  checked={selected.has(m.id)}
+                  onCheckedChange={() => toggleOne(m.id)}
+                  className="mt-1"
+                />
+                <div className="min-w-0 flex-1">
                   <p className="font-semibold text-sm text-foreground">{m.name}</p>
                   <p className="text-xs text-muted-foreground">{m.generic}</p>
                 </div>
