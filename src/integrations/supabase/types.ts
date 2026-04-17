@@ -277,6 +277,7 @@ export type Database = {
           created_at: string
           currency: string
           id: string
+          logo_url: string
           name: string
           phone: string
           receipt_width: string
@@ -287,6 +288,7 @@ export type Database = {
           created_at?: string
           currency?: string
           id?: string
+          logo_url?: string
           name?: string
           phone?: string
           receipt_width?: string
@@ -297,6 +299,7 @@ export type Database = {
           created_at?: string
           currency?: string
           id?: string
+          logo_url?: string
           name?: string
           phone?: string
           receipt_width?: string

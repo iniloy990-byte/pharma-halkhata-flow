@@ -1,13 +1,16 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { usePharmacy } from "@/context/PharmacyContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Save } from "lucide-react";
+import { Save, Upload, X, ImageIcon } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function SettingsPage() {
   const { settings, updateSettings } = usePharmacy();
   const [form, setForm] = useState(settings);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const set = (key: string, val: string | number) => setForm((p) => ({ ...p, [key]: val }));
 
@@ -19,11 +22,63 @@ export default function SettingsPage() {
     }
   };
 
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) { toast.error("Please select an image file"); return; }
+    if (file.size > 2 * 1024 * 1024) { toast.error("Logo must be under 2MB"); return; }
+
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop() || "png";
+      const path = `logo-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("pharmacy-logos").upload(path, file, { upsert: true });
+      if (upErr) throw upErr;
+      const { data } = supabase.storage.from("pharmacy-logos").getPublicUrl(path);
+      setForm((p) => ({ ...p, logoUrl: data.publicUrl }));
+      toast.success("Logo uploaded — click Save Settings to apply");
+    } catch (err: any) {
+      toast.error(err.message || "Upload failed");
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
+  const removeLogo = () => setForm((p) => ({ ...p, logoUrl: "" }));
+
   return (
     <div className="p-4 md:p-6 space-y-6 max-w-[800px]">
       <div>
         <h2 className="text-xl md:text-2xl font-bold text-foreground tracking-tight">Settings</h2>
         <p className="text-xs md:text-sm text-muted-foreground">Configure your pharmacy details</p>
+      </div>
+
+      <div className="bg-card border border-border rounded-outer p-4 md:p-5 space-y-4">
+        <h3 className="font-semibold text-foreground">Store Logo</h3>
+        <div className="flex items-center gap-4">
+          <div className="w-24 h-24 rounded-outer border border-border bg-background flex items-center justify-center overflow-hidden shrink-0">
+            {form.logoUrl ? (
+              <img src={form.logoUrl} alt="Store logo" className="w-full h-full object-contain" />
+            ) : (
+              <ImageIcon className="w-8 h-8 text-muted-foreground" />
+            )}
+          </div>
+          <div className="flex-1 space-y-2">
+            <input ref={fileRef} type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
+            <div className="flex flex-wrap gap-2">
+              <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()} disabled={uploading}>
+                <Upload className="w-4 h-4 mr-1.5" /> {uploading ? "Uploading..." : form.logoUrl ? "Change Logo" : "Upload Logo"}
+              </Button>
+              {form.logoUrl && (
+                <Button variant="ghost" size="sm" onClick={removeLogo}>
+                  <X className="w-4 h-4 mr-1.5" /> Remove
+                </Button>
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground">PNG/JPG, max 2MB. Appears at the top of every printed invoice.</p>
+          </div>
+        </div>
       </div>
 
       <div className="bg-card border border-border rounded-outer p-4 md:p-5 space-y-4">

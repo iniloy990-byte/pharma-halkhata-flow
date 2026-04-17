@@ -32,6 +32,7 @@ const defaultSettings: PharmacySettings = {
   vatRate: 5,
   currency: "৳",
   receiptWidth: "80mm",
+  logoUrl: "",
 };
 
 export function PharmacyProvider({ children }: { children: ReactNode }) {
@@ -119,6 +120,7 @@ export function PharmacyProvider({ children }: { children: ReactNode }) {
             name: s.name, address: s.address, phone: s.phone,
             vatRate: Number(s.vat_rate), currency: s.currency,
             receiptWidth: s.receipt_width as "80mm" | "58mm",
+            logoUrl: s.logo_url || "",
           });
         }
       } catch (err) {
@@ -317,6 +319,7 @@ export function PharmacyProvider({ children }: { children: ReactNode }) {
     const { error } = await supabase.from("pharmacy_settings").update({
       name: s.name, address: s.address, phone: s.phone,
       vat_rate: s.vatRate, currency: s.currency, receipt_width: s.receiptWidth,
+      logo_url: s.logoUrl,
     }).neq("id", "00000000-0000-0000-0000-000000000000"); // update all rows
     if (error) console.error(error);
     setSettings(s);
