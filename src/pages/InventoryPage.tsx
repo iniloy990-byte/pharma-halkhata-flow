@@ -1,12 +1,17 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import { usePharmacy } from "@/context/PharmacyContext";
 
 import { Medicine } from "@/types/pharmacy";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   Search, Plus, Upload, Download, Pencil, Trash2, X, Package, ScanLine,
 } from "lucide-react";
@@ -21,11 +26,43 @@ export default function InventoryPage() {
   const [editingMed, setEditingMed] = useState<Medicine | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const [showScan, setShowScan] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [confirmBulk, setConfirmBulk] = useState(false);
 
   const filtered = medicines.filter((m) => {
     const q = search.toLowerCase();
     return !q || m.name.toLowerCase().includes(q) || m.generic.toLowerCase().includes(q) || m.manufacturer.toLowerCase().includes(q) || m.batch.toLowerCase().includes(q);
   });
+
+  const allFilteredSelected = useMemo(
+    () => filtered.length > 0 && filtered.every((m) => selected.has(m.id)),
+    [filtered, selected]
+  );
+
+  const toggleOne = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleAll = () => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (allFilteredSelected) filtered.forEach((m) => next.delete(m.id));
+      else filtered.forEach((m) => next.add(m.id));
+      return next;
+    });
+  };
+
+  const handleBulkDelete = async () => {
+    const ids = Array.from(selected);
+    for (const id of ids) await deleteMedicine(id);
+    toast.success(`${ids.length} medicine(s) deleted`);
+    setSelected(new Set());
+    setConfirmBulk(false);
+  };
 
   const handleExport = () => {
     const headers = "Name,Generic,Form,Manufacturer,MRP,TP,Stock,Batch,Expiry,MinStock";
@@ -137,10 +174,38 @@ export default function InventoryPage() {
 
       <ScanInvoiceDialog open={showScan} onOpenChange={setShowScan} />
 
-      <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-        <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search medicines..." className="pl-10" />
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+        <div className="relative max-w-md flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search medicines..." className="pl-10" />
+        </div>
+        {selected.size > 0 && (
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">{selected.size} selected</span>
+            <Button variant="outline" size="sm" onClick={() => setSelected(new Set())}>Clear</Button>
+            <Button variant="destructive" size="sm" onClick={() => setConfirmBulk(true)}>
+              <Trash2 className="w-4 h-4 mr-1.5" /> Delete Selected
+            </Button>
+          </div>
+        )}
       </div>
+
+      <AlertDialog open={confirmBulk} onOpenChange={setConfirmBulk}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {selected.size} medicine(s)?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. The selected medicines will be permanently removed from inventory.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleBulkDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {showForm && (
         <MedicineForm
@@ -170,8 +235,13 @@ export default function InventoryPage() {
           const isExpSoon = !isExpired && (expDate.getTime() - Date.now()) / 86400000 < 90;
           return (
             <div key={m.id} className="bg-card border border-border rounded-outer p-3 space-y-2">
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
+              <div className="flex items-start gap-2">
+                <Checkbox
+                  checked={selected.has(m.id)}
+                  onCheckedChange={() => toggleOne(m.id)}
+                  className="mt-1"
+                />
+                <div className="min-w-0 flex-1">
                   <p className="font-semibold text-sm text-foreground">{m.name}</p>
                   <p className="text-xs text-muted-foreground">{m.generic}</p>
                 </div>
@@ -216,6 +286,9 @@ export default function InventoryPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border bg-muted/50">
+                <th className="px-4 py-3 w-10">
+                  <Checkbox checked={allFilteredSelected} onCheckedChange={toggleAll} />
+                </th>
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground">Medicine</th>
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground">Form</th>
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground">Manufacturer</th>
@@ -236,7 +309,10 @@ export default function InventoryPage() {
                 const isExpired = expDate < new Date();
                 const isExpSoon = !isExpired && (expDate.getTime() - Date.now()) / 86400000 < 90;
                 return (
-                  <tr key={m.id} className="hover:bg-accent/50 transition-colors">
+                  <tr key={m.id} className="hover:bg-accent/50 transition-colors" data-state={selected.has(m.id) ? "selected" : undefined}>
+                    <td className="px-4 py-3">
+                      <Checkbox checked={selected.has(m.id)} onCheckedChange={() => toggleOne(m.id)} />
+                    </td>
                     <td className="px-4 py-3">
                       <p className="font-medium text-foreground">{m.name}</p>
                       <p className="text-xs text-muted-foreground">{m.generic}</p>
