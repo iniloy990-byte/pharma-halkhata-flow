@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { usePharmacy } from "@/context/PharmacyContext";
-import { useCompanies } from "@/context/CompanyContext";
+import { useCompany } from "@/context/CompanyContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -30,7 +30,7 @@ interface Props {
 
 export default function ScanInvoiceDialog({ open, onOpenChange }: Props) {
   const { medicines, addMedicine, updateMedicine } = usePharmacy();
-  const { companies, addPurchase } = useCompanies();
+  const { companies, addPurchase } = useCompany();
   const [step, setStep] = useState<"upload" | "review">("upload");
   const [scanning, setScanning] = useState(false);
   const [items, setItems] = useState<ExtractedItem[]>([]);
