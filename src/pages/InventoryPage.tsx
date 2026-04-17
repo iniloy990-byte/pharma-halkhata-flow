@@ -309,7 +309,10 @@ export default function InventoryPage() {
                 const isExpired = expDate < new Date();
                 const isExpSoon = !isExpired && (expDate.getTime() - Date.now()) / 86400000 < 90;
                 return (
-                  <tr key={m.id} className="hover:bg-accent/50 transition-colors">
+                  <tr key={m.id} className="hover:bg-accent/50 transition-colors" data-state={selected.has(m.id) ? "selected" : undefined}>
+                    <td className="px-4 py-3">
+                      <Checkbox checked={selected.has(m.id)} onCheckedChange={() => toggleOne(m.id)} />
+                    </td>
                     <td className="px-4 py-3">
                       <p className="font-medium text-foreground">{m.name}</p>
                       <p className="text-xs text-muted-foreground">{m.generic}</p>
